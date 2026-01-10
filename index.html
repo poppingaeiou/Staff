@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sadao Hospital - คิวงานแพทย์แผนไทย</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Prompt', sans-serif; background-color: #f0f2f5; }
+        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .room-badge { background-color: #8b5cf6; color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 500; }
+        .time-badge { background-color: #e5e7eb; color: #374151; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
+        
+        /* Animation เล็กน้อยตอนโหลดการ์ด */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .card-anim { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="pb-20">
+
+    <header class="bg-teal-700 text-white p-4 sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center max-w-5xl">
+            <div>
+                <h1 class="text-xl font-bold flex items-center gap-2">
+                    <i class="fas fa-spa"></i> คิวงานแพทย์แผนไทย
+                </h1>
+                <p id="dateDisplay" class="text-xs text-teal-200 mt-1 opacity-80">กำลังโหลดวันที่...</p>
+            </div>
+            <button onclick="fetchData()" class="bg-teal-800 hover:bg-teal-900 text-white p-2 rounded-lg transition active:scale-95">
+                <i class="fas fa-sync-alt" id="refreshIcon"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 mt-4 max-w-5xl">
+        <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+            <label class="text-xs text-gray-500 font-bold ml-1 mb-1 block">เลือกดูคิวของ:</label>
+            <div class="relative">
+                <select id="staffFilter" onchange="filterData()" class="w-full p-3 pl-10 bg-gray-50 border border-gray-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-700">
+                    <option value="all">👥 ดูภาพรวมทีม (ทั้งหมด)</option>
+                </select>
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <i class="fas fa-user-md text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading" class="text-center py-12">
+        <i class="fas fa-circle-notch fa-spin text-4xl text-teal-600 mb-3"></i>
+        <p class="text-gray-500">กำลังดึงข้อมูลล่าสุด...</p>
+    </div>
+
+    <div id="errorMsg" class="hidden container mx-auto px-4 mt-4 max-w-5xl">
+        <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-r shadow-sm">
+            <p class="font-bold"><i class="fas fa-exclamation-circle"></i> เกิดข้อผิดพลาด</p>
+            <p id="errorText" class="text-sm">ไม่สามารถเชื่อมต่อข้อมูลได้</p>
+        </div>
+    </div>
+
+    <div id="appointmentGrid" class="container mx-auto px-4 mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl hidden">
+        </div>
+
+    <script>
+        // ***************************************************************
+        //  API URL ของคุณ (ใส่ให้เรียบร้อยแล้ว)
+        // ***************************************************************
+        const API_URL = "https://script.google.com/macros/s/AKfycbzGmp_5CoVDXRugHW8DOFHes4QI9p-Ho5J5th6hjrCd3U-fTFSkW9X84gRN_xo8au3UQg/exec";
+
+        let allData = [];
+        let staffSet = new Set();
+
+        // เริ่มทำงานเมื่อเปิดเว็บ
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData();
+        });
+
+        async function fetchData() {
+            showLoading(true);
+            const refreshIcon = document.getElementById('refreshIcon');
+            refreshIcon.classList.add('fa-spin');
+
+            try {
+                // ดึงข้อมูลจาก Google Script
+                const response = await fetch(API_URL);
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    allData = result.data;
+                    document.getElementById('dateDisplay').innerText = `📅 ประจำวันที่ ${result.date}`;
+                    
+                    // สร้างตัวเลือกรายชื่อหมอ
+                    setupFilter(allData);
+                    
+                    // แสดงผลการ์ด
+                    renderCards(allData);
+                    hideError();
+                } else {
+                    showError(result.message);
+                }
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                showError("ไม่สามารถดึงข้อมูลได้ (โปรดตรวจสอบอินเทอร์เน็ต หรือลิงก์ Script)");
+            } finally {
+                showLoading(false);
+                refreshIcon.classList.remove('fa-spin');
+            }
+        }
+
+        function setupFilter(data) {
+            const select = document.getElementById('staffFilter');
+            const currentVal = select.value;
+            
+            // เก็บรายชื่อหมอที่ไม่ซ้ำกัน
+            staffSet.clear();
+            data.forEach(item => {
+                if(item.staff) staffSet.add(item.staff);
+            });
+
+            // ล้าง Option เก่า (เหลือแค่อันแรก)
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+
+            // เรียงชื่อและใส่ลงใน Dropdown
+            Array.from(staffSet).sort().forEach(staff => {
+                const option = document.createElement('option');
+                option.value = staff;
+                option.text = `👤 ${staff}`;
+                select.add(option);
+            });
+
+            select.value = currentVal;
+        }
+
+        function filterData() {
+            const selected = document.getElementById('staffFilter').value;
+            if (selected === 'all') {
+                renderCards(allData);
+            } else {
+                renderCards(allData.filter(item => item.staff === selected));
+            }
+        }
+
+        function renderCards(data) {
+            const container = document.getElementById('appointmentGrid');
+            container.innerHTML = '';
+
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-10 opacity-50">
+                        <i class="fas fa-clipboard-check text-4xl mb-2 text-gray-400"></i>
+                        <p>ไม่พบรายการนัดหมาย</p>
+                    </div>`;
+                return;
+            }
+
+            data.forEach((item, index) => {
+                // เช็คสถานะ: ถ้าเป็น cancelled_slot ให้แสดงเป็นสีเทา
+                const isCancelledSlot = item.status === 'cancelled_slot';
+                
+                // สีของการ์ด
+                const bgClass = isCancelledSlot ? 'bg-gray-100 border-gray-300' : 'bg-white border-teal-500';
+                const textClass = isCancelledSlot ? 'text-gray-500' : 'text-gray-800';
+                
+                // Animation delay (ให้เด้งขึ้นมาทีละอันสวยๆ)
+                const delayStyle = `animation-delay: ${index * 0.05}s`;
+
+                const html = `
+                <div class="${bgClass} border-l-4 rounded-xl p-4 card-shadow relative overflow-hidden card-anim" style="${delayStyle}">
+                    
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="time-badge"><i class="far fa-clock"></i> ${item.time}</span>
+                        <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                            ${item.staff}
+                        </span>
+                    </div>
+
+                    <h3 class="text-lg font-bold ${textClass} mb-1 truncate">
+                        ${item.patient}
+                    </h3>
+
+                    <div class="flex flex-wrap items-center gap-2 mb-3">
+                        ${item.room ? `<span class="room-badge"><i class="fas fa-door-open"></i> ${item.room}</span>` : ''}
+                        <span class="text-sm ${isCancelledSlot ? 'text-gray-400' : 'text-teal-700 font-medium'}">
+                            ${item.treatment || '-'}
+                        </span>
+                    </div>
+
+                    ${item.cancelled ? `
+                        <div class="mt-3 pt-2 border-t border-gray-200 text-xs">
+                            <span class="text-red-400 font-medium"><i class="fas fa-history"></i> ประวัติยกเลิก:</span>
+                            <span class="text-gray-400 line-through ml-1">${item.cancelled}</span>
+                        </div>
+                    ` : ''}
+
+                    ${item.tel && !isCancelledSlot ? `
+                        <a href="tel:${item.tel}" class="absolute bottom-3 right-3 bg-green-100 text-green-600 hover:bg-green-500 hover:text-white w-10 h-10 rounded-full flex items-center justify-center transition shadow-sm">
+                            <i class="fas fa-phone-alt"></i>
+                        </a>
+                    ` : ''}
+                </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+            document.getElementById('appointmentGrid').style.display = show ? 'none' : 'grid';
+        }
+
+        function showError(msg) {
+            document.getElementById('errorMsg').classList.remove('hidden');
+            document.getElementById('errorText').innerText = msg;
+        }
+        
+        function hideError() {
+            document.getElementById('errorMsg').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
