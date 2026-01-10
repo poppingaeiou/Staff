@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sadao Queue V20 (Layered Design)</title>
+    <title>Sadao Queue System</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
@@ -174,7 +174,7 @@
                     <h1 class="text-2xl font-extrabold text-white tracking-wide">คิวงานแพทย์แผนไทย</h1>
                     <div class="flex items-center gap-2 text-cyan-400 text-xs font-mono mt-1">
                         <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                        <span id="lastUpdate">TEST MODE: 12/1</span>
+                        <span id="lastUpdate">INITIALIZING...</span>
                     </div>
                 </div>
             </div>
@@ -196,7 +196,9 @@
     <div id="contentArea" class="container mx-auto px-4 mt-8 max-w-6xl space-y-10"></div>
 
     <script>
+        // ⚠️ ใส่ URL Web App ของคุณ
         const API_URL = "https://script.google.com/macros/s/AKfycbzGmp_5CoVDXRugHW8DOFHes4QI9p-Ho5J5th6hjrCd3U-fTFSkW9X84gRN_xo8au3UQg/exec";
+        
         let allData = [];
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -239,14 +241,16 @@
             else renderTimeline(allData.filter(d => d.staff === who));
         }
 
-        // ⚠️ ลบฟังก์ชัน isJobFinished ออกชั่วคราว หรือ ปรับให้ return false เพื่อให้เห็นคิวทดสอบทั้งหมด
         function isJobFinished(timeStr) {
-            // return false; // เปิดบรรทัดนี้ถ้าต้องการเห็นทุกคิวเพื่อเทส
+            // ⚠️ ปิดการซ่อนคิวเก่าชั่วคราว เพื่อให้เห็นข้อมูลทดสอบทั้งหมด
+            return false; 
             
+            /* // Logic ใช้งานจริง
             const now = new Date();
             const [hours, minutes] = timeStr.split(':').map(Number);
             const jobTime = new Date(); jobTime.setHours(hours, minutes, 0, 0);
             return now > new Date(jobTime.getTime() + (60 * 60 * 1000));
+            */
         }
 
         // Helper: สร้างป้ายจอง 3D
@@ -264,12 +268,14 @@
             const container = document.getElementById('contentArea');
             container.innerHTML = '';
             
-            // กรองข้อมูล (ถ้าต้องการเทส ให้ comment บรรทัด filter ออกได้)
             const activeData = data.filter(d => !isJobFinished(d.time)); 
-            // const activeData = data;
 
             if(activeData.length === 0) {
-                container.innerHTML = `<div class="text-center p-12 bg-slate-900/50 rounded-2xl border border-cyan-900/50 backdrop-blur-sm"><p class="text-slate-400 text-2xl font-bold">NO ACTIVE QUEUE</p></div>`;
+                container.innerHTML = `
+                    <div class="text-center p-12 bg-slate-900/50 rounded-2xl border border-cyan-900/50 backdrop-blur-sm">
+                        <i class="fas fa-satellite text-6xl text-slate-700 mb-6 animate-pulse"></i>
+                        <p class="text-slate-400 text-2xl font-bold">NO ACTIVE QUEUE</p>
+                    </div>`;
                 return;
             }
 
@@ -311,6 +317,7 @@
                         patientName = `<span class="line-through opacity-60">${item.patient}</span>`;
                         statusIcon = `<i class="fas fa-ban text-slate-400 text-2xl"></i>`;
                     } else {
+                        // Busy icon
                         statusIcon = isSheetColor 
                             ? `<i class="fas fa-user text-black opacity-20 text-2xl"></i>` 
                             : `<i class="fas fa-user text-cyan-200 opacity-30 text-2xl"></i>`;
