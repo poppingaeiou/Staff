@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sadao Queue V24 (Updated URL)</title>
+    <title>Sadao Queue V25 (Red Card Support)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* --- CORE THEME: Deep Space --- */
+        /* --- CORE THEME --- */
         body {
             font-family: 'Sarabun', sans-serif;
             background-color: #0b1021; color: #e2e8f0; min-height: 100vh; overflow-x: hidden;
@@ -27,31 +27,46 @@
             display: flex; align-items: center; gap: 12px;
         }
 
-        /* Card Structure */
+        /* Card */
         .queue-card {
             border-radius: 20px; padding: 12px; position: relative; transition: transform 0.3s ease;
             display: flex; flex-direction: column; height: 100%; border: 1px solid rgba(255, 255, 255, 0.08); overflow: hidden;
         }
 
-        /* Header Layer */
         .card-header-layer {
             background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px); border-radius: 14px;
             padding: 10px 14px; margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: inset 0 0 10px rgba(255,255,255,0.05);
         }
-        .theme-sheet-green .card-header-layer, .theme-sheet-pink .card-header-layer, .theme-sheet-yellow .card-header-layer {
+        
+        /* ปรับสี Layer บนพื้นสีสด */
+        .theme-sheet-green .card-header-layer, 
+        .theme-sheet-pink .card-header-layer, 
+        .theme-sheet-yellow .card-header-layer,
+        .theme-sheet-red .card-header-layer { /* เพิ่มสีแดง */
             background: rgba(255, 255, 255, 0.25); border-color: rgba(255,255,255,0.3);
         }
 
-        /* Themes */
+        /* --- THEMES --- */
         .theme-normal { background: rgba(30, 41, 59, 0.85); border-left: 6px solid #94a3b8; }
         .theme-free { background: rgba(6, 78, 59, 0.6); border: 1px solid #10b981; border-left: 6px solid #10b981; color: #d1fae5; }
+        
+        /* Theme Cancel เดิม (สีเทา) -> ใช้สำหรับคนที่ไม่มีชื่อในแถว 1 */
         .theme-cancel { background: #334155; color: #94a3b8; border-left: 6px solid #64748b; opacity: 0.9; }
 
-        /* Sheet Colors */
+        /* --- SHEET COLORS --- */
         .theme-sheet-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); color: #fff; border: 2px solid #86efac; box-shadow: 0 8px 20px rgba(22, 163, 74, 0.3); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         .theme-sheet-pink { background: linear-gradient(135deg, #e879f9 0%, #a21caf 100%); color: #fff; border: 2px solid #f5d0fe; }
         .theme-sheet-yellow { background: linear-gradient(135deg, #facc15 0%, #a16207 100%); color: #422006; border: 2px solid #fef08a; text-shadow: none; }
+
+        /* ★★★ ธีมสีแดง (RED ALERT) สำหรับคนยกเลิก ★★★ */
+        .theme-sheet-red {
+            background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); /* แดงไล่ไปแดงเลือดหมู */
+            color: #fff; 
+            border: 2px solid #fca5a5; /* ขอบแดงอ่อน */
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+            opacity: 0.85; /* จางนิดนึง เพื่อให้รู้ว่าไม่ได้ Active */
+        }
 
         /* Typography */
         .staff-name { font-size: 1.3rem; font-weight: 800; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.9; margin-bottom: 4px; }
@@ -62,10 +77,20 @@
         .badge-booking { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(145deg, #fb923c, #c2410c); color: white; padding: 3px 10px; border-radius: 6px; font-size: 0.9rem; font-weight: 800; box-shadow: 0 3px 0 #9a3412; margin-right: 6px; margin-bottom: 4px; transform: translateY(-2px); border: 1px solid rgba(255,255,255,0.2); }
         .badge-treatment { display: inline-block; padding: 4px 10px; border-radius: 8px; font-weight: 600; font-size: 1rem; }
         .theme-normal .badge-treatment { background: rgba(6, 182, 212, 0.15); border: 1px solid #06b6d4; color: #67e8f9; }
-        .theme-sheet-green .badge-treatment, .theme-sheet-pink .badge-treatment, .theme-sheet-yellow .badge-treatment { background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.3); color: inherit; }
+        
+        /* ป้ายนวดบนพื้นสี */
+        .theme-sheet-green .badge-treatment, 
+        .theme-sheet-pink .badge-treatment, 
+        .theme-sheet-yellow .badge-treatment,
+        .theme-sheet-red .badge-treatment { 
+            background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.3); color: inherit; 
+        }
 
         .strike-text { color: #fca5a5; text-decoration: line-through; font-weight: 700; font-size: 1rem; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 6px; }
         .theme-sheet-yellow .strike-text { color: #991b1b; background: rgba(255,255,255,0.5); }
+        
+        /* สีขีดฆ่าบนพื้นแดง */
+        .theme-sheet-red .strike-text { color: #fee2e2; background: rgba(0,0,0,0.2); text-decoration-color: #fff; }
         .theme-sheet-green .strike-text, .theme-sheet-pink .strike-text { color: #fff; background: rgba(0,0,0,0.2); }
 
         .room-tag { font-family: 'Rajdhani', sans-serif; background: #000; color: #facc15; border: 1px solid #ca8a04; padding: 2px 10px; border-radius: 6px; font-size: 1.1rem; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
@@ -79,14 +104,10 @@
         #statusModal { backdrop-filter: blur(5px); }
         .status-btn { width: 100%; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; transition: transform 0.1s; border: 2px solid transparent; margin-bottom: 10px; }
         .status-btn:active { transform: scale(0.98); }
-        
         .btn-green { background: #22c55e; color: #022c22; border-color: #86efac; }
         .btn-pink { background: #e879f9; color: #4a044e; border-color: #fbcfe8; }
         .btn-yellow { background: #facc15; color: #422006; border-color: #fde047; }
-        
-        /* ปุ่มยกเลิก (แดง) */
         .btn-red { background: #ef4444; color: white; border-color: #f87171; }
-        /* ปุ่มล้างสถานะ (ขาว/เทาอ่อน) */
         .btn-white { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
 
         .spin-slow { animation: spin 2s linear infinite; }
@@ -107,7 +128,7 @@
                     <h1 class="text-2xl font-extrabold text-white tracking-wide">คิวงานแพทย์แผนไทย</h1>
                     <div class="flex items-center gap-2 text-cyan-400 text-xs font-mono mt-1">
                         <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                        <span id="lastUpdate">INITIALIZING...</span>
+                        <span id="lastUpdate">TEST MODE: 12/1</span>
                     </div>
                 </div>
             </div>
@@ -133,16 +154,14 @@
                 <button onclick="changeStatus('#00ff00')" class="status-btn btn-green"><i class="fas fa-user-check text-2xl"></i> คนไข้มาแล้ว</button>
                 <button onclick="changeStatus('#ff00ff')" class="status-btn btn-pink"><i class="fas fa-phone-volume text-2xl"></i> โทรแจ้งแล้ว</button>
                 <button onclick="changeStatus('#ffff00')" class="status-btn btn-yellow"><i class="fas fa-exclamation-triangle text-2xl"></i> ติดต่อไม่ได้</button>
-                
                 <button onclick="changeStatus('cancel')" class="status-btn btn-red"><i class="fas fa-ban text-2xl"></i> ยกเลิก / ขีดฆ่า</button>
-                
                 <button onclick="changeStatus('clear')" class="status-btn btn-white"><i class="fas fa-eraser text-2xl"></i> ล้างสถานะ (ปกติ)</button>
             </div>
         </div>
     </div>
 
     <script>
-        // ★★★ URL ใหม่ที่คุณให้มา ★★★
+        // ★★★ Updated URL ★★★
         const API_URL = "https://script.google.com/macros/s/AKfycbx7biDk5VGc0xkjAxLiN3OQXKoRU5kok144Z9TTQeSw4EVUD5XWeFEuPOCK04mR5mXj5A/exec";
         
         let allData = [];
@@ -162,7 +181,7 @@
                 if(json.status === 'success') {
                     allData = json.data;
                     const now = new Date();
-                    document.getElementById('lastUpdate').innerText = `UPDATED: ${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}`;
+                    document.getElementById('lastUpdate').innerText = `TEST MODE: 12/1 (Updated ${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')})`;
                     setupFilter(allData);
                     renderTimeline(allData);
                 }
@@ -256,11 +275,13 @@
                     let themeClass = 'theme-normal';
                     let patientName = item.patient;
                     const bg = (item.bgColor || "").toLowerCase();
-                    const isSheetColor = (bg === '#00ff00' || bg === '#lime' || bg === '#ff00ff' || bg === '#magenta' || bg === '#ffff00' || bg === '#yellow');
+                    const isSheetColor = (bg === '#00ff00' || bg === '#lime' || bg === '#ff00ff' || bg === '#magenta' || bg === '#ffff00' || bg === '#yellow' || bg === '#ef4444' || bg === 'red');
 
+                    // Logic เลือกสีการ์ด (เพิ่มสีแดง)
                     if (bg === '#00ff00' || bg === '#lime') themeClass = 'theme-sheet-green';
                     else if (bg === '#ff00ff' || bg === '#magenta' || bg === '#ea4335') themeClass = 'theme-sheet-pink';
                     else if (bg === '#ffff00' || bg === '#yellow') themeClass = 'theme-sheet-yellow';
+                    else if (bg === '#ef4444' || bg === 'red') themeClass = 'theme-sheet-red'; // สีแดงมาแล้ว!
 
                     let statusIcon = '';
                     if (item.status === 'available') {
@@ -268,11 +289,14 @@
                         patientName = `<span class="text-emerald-300 drop-shadow-md">ว่าง</span>`;
                         statusIcon = `<i class="fas fa-check-circle text-emerald-400 text-2xl"></i>`;
                     } else if (item.status === 'cancelled') {
-                        themeClass = 'theme-cancel';
+                        themeClass = 'theme-cancel'; // ถ้าสีเดิมไม่มี แต่สถานะ Cancelled จะเป็นสีเทา
+                        if (bg === '#ef4444') themeClass = 'theme-sheet-red'; // แต่ถ้ามีสีแดง ให้ใช้แดง
                         patientName = `<span class="line-through opacity-60">${item.patient}</span>`;
                         statusIcon = `<i class="fas fa-ban text-slate-400 text-2xl"></i>`;
                     } else {
                         statusIcon = isSheetColor ? `<i class="fas fa-user text-black opacity-20 text-2xl"></i>` : `<i class="fas fa-user text-cyan-200 opacity-30 text-2xl"></i>`;
+                        // ถ้าเป็นสีแดง (ยกเลิกแบบมีชื่อ) ให้ไอคอนเป็นกากบาท
+                        if (bg === '#ef4444') statusIcon = `<i class="fas fa-user-times text-white opacity-50 text-2xl"></i>`;
                     }
 
                     let contentHtml = '';
