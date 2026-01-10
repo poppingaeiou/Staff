@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sadao Queue V15 (Simple Logic)</title>
+    <title>Sadao Queue V16</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
@@ -27,7 +27,6 @@
             border: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* ล็อคความสูงกล่องชื่อ */
         .patient-name-container {
             height: 50px; display: flex; align-items: center; margin-top: 4px; margin-bottom: 4px;
         }
@@ -180,7 +179,6 @@
                     
                     } else if (item.status === 'cancelled') {
                         themeClass = 'theme-cancel';
-                        // ⚠️ Logic นี้จะโชว์ทั้ง ชื่อคน หรือ หมายเหตุ (เช่น "รถเสีย")
                         patientName = `<span class="line-through opacity-50">${item.patient}</span>`;
                         descHtml = `<div class="font-bold text-slate-400 text-xs">ยกเลิก/หมายเหตุ</div>`;
                     } else {
