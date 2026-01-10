@@ -3,125 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sadao Queue V26 (Animated)</title>
+    <title>Sadao Queue V27 (Edit Mode)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* --- CORE THEME --- */
-        body {
-            font-family: 'Sarabun', sans-serif;
-            background-color: #0b1021; color: #e2e8f0; min-height: 100vh; overflow-x: hidden;
-            background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px), radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px);
-            background-size: 550px 550px, 350px 350px; animation: starMove 120s linear infinite;
-        }
+        /* --- Styles เดิม (คงไว้ทั้งหมด) --- */
+        body { font-family: 'Sarabun', sans-serif; background-color: #0b1021; color: #e2e8f0; min-height: 100vh; overflow-x: hidden; background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px), radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px); background-size: 550px 550px, 350px 350px; animation: starMove 120s linear infinite; }
         @keyframes starMove { from { background-position: 0 0; } to { background-position: 550px 550px; } }
-
-        /* Headers */
-        .time-header {
-            font-family: 'Rajdhani', sans-serif; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px);
-            border-left: 6px solid #22d3ee; box-shadow: 0 0 20px rgba(6, 182, 212, 0.2); color: #fff;
-            padding: 12px 20px; font-size: 1.8rem; font-weight: 700; border-radius: 12px; margin-bottom: 20px;
-            display: flex; align-items: center; gap: 12px;
-        }
-
-        /* --- CARD ANIMATION (หัวใจสำคัญของ V.26) --- */
-        .queue-card {
-            border-radius: 20px; padding: 12px; position: relative; 
-            display: flex; flex-direction: column; height: 100%; 
-            border: 1px solid rgba(255, 255, 255, 0.08); overflow: hidden;
-            
-            /* ★★★ Smooth Transition ★★★ */
-            /* เปลี่ยนสีพื้นหลังและขอบอย่างนุ่มนวล 0.6 วินาที */
-            transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
-                        border-color 0.6s ease,
-                        box-shadow 0.6s ease,
-                        transform 0.3s ease;
-        }
-
-        /* Animation ตอนกำลังโหลด (Card Pulse) */
-        .card-loading {
-            animation: cardPulse 1.5s infinite alternate;
-        }
-        @keyframes cardPulse {
-            0% { box-shadow: 0 0 10px rgba(255,255,255,0.1); }
-            100% { box-shadow: 0 0 25px rgba(255,255,255,0.4); filter: brightness(1.1); }
-        }
-
-        /* Header Layer */
-        .card-header-layer {
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px); border-radius: 14px;
-            padding: 10px 14px; margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: inset 0 0 10px rgba(255,255,255,0.05);
-            transition: background 0.5s ease; /* Layer ก็เปลี่ยนสีนุ่มๆ */
-        }
-        .theme-sheet-green .card-header-layer, .theme-sheet-pink .card-header-layer, 
-        .theme-sheet-yellow .card-header-layer, .theme-sheet-red .card-header-layer {
-            background: rgba(255, 255, 255, 0.25); border-color: rgba(255,255,255,0.3);
-        }
-
-        /* --- THEMES --- */
+        .time-header { font-family: 'Rajdhani', sans-serif; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); border-left: 6px solid #22d3ee; box-shadow: 0 0 20px rgba(6, 182, 212, 0.2); color: #fff; padding: 12px 20px; font-size: 1.8rem; font-weight: 700; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+        .queue-card { border-radius: 20px; padding: 12px; position: relative; transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.6s ease, box-shadow 0.6s ease, transform 0.3s ease; display: flex; flex-direction: column; height: 100%; border: 1px solid rgba(255, 255, 255, 0.08); overflow: hidden; }
+        .card-loading { animation: cardPulse 1.5s infinite alternate; }
+        @keyframes cardPulse { 0% { box-shadow: 0 0 10px rgba(255,255,255,0.1); } 100% { box-shadow: 0 0 25px rgba(255,255,255,0.4); filter: brightness(1.1); } }
+        .card-header-layer { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px); border-radius: 14px; padding: 10px 14px; margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 10px rgba(255,255,255,0.05); transition: background 0.5s ease; }
+        .theme-sheet-green .card-header-layer, .theme-sheet-pink .card-header-layer, .theme-sheet-yellow .card-header-layer, .theme-sheet-red .card-header-layer { background: rgba(255, 255, 255, 0.25); border-color: rgba(255,255,255,0.3); }
         .theme-normal { background: rgba(30, 41, 59, 0.85); border-left: 6px solid #94a3b8; }
         .theme-free { background: rgba(6, 78, 59, 0.6); border: 1px solid #10b981; border-left: 6px solid #10b981; color: #d1fae5; }
         .theme-cancel { background: #334155; color: #94a3b8; border-left: 6px solid #64748b; opacity: 0.9; }
-
-        /* Sheet Colors */
         .theme-sheet-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); color: #fff; border: 2px solid #86efac; box-shadow: 0 8px 20px rgba(22, 163, 74, 0.3); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         .theme-sheet-pink { background: linear-gradient(135deg, #e879f9 0%, #a21caf 100%); color: #fff; border: 2px solid #f5d0fe; }
         .theme-sheet-yellow { background: linear-gradient(135deg, #facc15 0%, #a16207 100%); color: #422006; border: 2px solid #fef08a; text-shadow: none; }
-        
-        /* Red Theme (Cancel) */
-        .theme-sheet-red {
-            background: linear-gradient(135deg, #ef4444 0%, #7f1d1d 100%); /* แดงเข้มไล่เฉด */
-            color: #fff; 
-            border: 2px solid #f87171; 
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); /* แสงฟุ้งสีแดง */
-        }
-
-        /* Typography */
+        .theme-sheet-red { background: linear-gradient(135deg, #ef4444 0%, #7f1d1d 100%); color: #fff; border: 2px solid #f87171; box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
         .staff-name { font-size: 1.3rem; font-weight: 800; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.9; margin-bottom: 4px; }
         .patient-name-container { height: 50px; display: flex; align-items: center; }
         .patient-text { font-size: 1.5rem; font-weight: 700; line-height: 1.1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-
-        /* Badges */
         .badge-booking { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(145deg, #fb923c, #c2410c); color: white; padding: 3px 10px; border-radius: 6px; font-size: 0.9rem; font-weight: 800; box-shadow: 0 3px 0 #9a3412; margin-right: 6px; margin-bottom: 4px; transform: translateY(-2px); border: 1px solid rgba(255,255,255,0.2); }
         .badge-treatment { display: inline-block; padding: 4px 10px; border-radius: 8px; font-weight: 600; font-size: 1rem; }
         .theme-normal .badge-treatment { background: rgba(6, 182, 212, 0.15); border: 1px solid #06b6d4; color: #67e8f9; }
         .theme-sheet-green .badge-treatment, .theme-sheet-pink .badge-treatment, .theme-sheet-yellow .badge-treatment, .theme-sheet-red .badge-treatment { background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.3); color: inherit; }
-
         .strike-text { color: #fca5a5; text-decoration: line-through; font-weight: 700; font-size: 1rem; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 6px; }
         .theme-sheet-yellow .strike-text { color: #991b1b; background: rgba(255,255,255,0.5); }
         .theme-sheet-red .strike-text { color: #fee2e2; background: rgba(0,0,0,0.2); text-decoration-color: #fff; }
         .theme-sheet-green .strike-text, .theme-sheet-pink .strike-text { color: #fff; background: rgba(0,0,0,0.2); }
-
         .room-tag { font-family: 'Rajdhani', sans-serif; background: #000; color: #facc15; border: 1px solid #ca8a04; padding: 2px 10px; border-radius: 6px; font-size: 1.1rem; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-
-        /* Buttons */
         .icon-btn { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; transition: all 0.2s; cursor: pointer; }
         .icon-btn:hover { transform: scale(1.1); background: rgba(255,255,255,0.4); }
         .theme-sheet-yellow .icon-btn { color: #422006; border-color: rgba(66, 32, 6, 0.2); background: rgba(255,255,255,0.4); }
+        .fade-in { animation: fadeIn 0.4s ease-out; } @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .spin-slow { animation: spin 2s linear infinite; } @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* Modal */
-        #statusModal { backdrop-filter: blur(5px); transition: opacity 0.3s ease; }
-        .status-btn { width: 100%; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; transition: transform 0.1s, background 0.2s; border: 2px solid transparent; margin-bottom: 10px; }
-        .status-btn:active { transform: scale(0.95); }
+        /* Modal Styles */
+        .modal-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: flex; justify-content: center; items-center; transition: opacity 0.3s; opacity: 0; pointer-events: none; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-box { background: #1e293b; border: 1px solid #475569; border-radius: 16px; padding: 24px; width: 90%; max-width: 400px; transform: scale(0.9); transition: transform 0.3s; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+        .modal-overlay.active .modal-box { transform: scale(1); }
+        
+        .status-btn { width: 100%; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; transition: transform 0.1s; border: 2px solid transparent; margin-bottom: 10px; }
+        .status-btn:active { transform: scale(0.98); }
         .btn-green { background: #22c55e; color: #022c22; border-color: #86efac; }
         .btn-pink { background: #e879f9; color: #4a044e; border-color: #fbcfe8; }
         .btn-yellow { background: #facc15; color: #422006; border-color: #fde047; }
         .btn-red { background: #ef4444; color: white; border-color: #f87171; }
         .btn-white { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
 
-        .spin-slow { animation: spin 2s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        /* Input Style for Edit Modal */
+        .input-group label { display: block; color: #94a3b8; font-size: 0.9rem; margin-bottom: 4px; }
+        .input-group input { width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 10px; border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+        .input-group input:focus { border-color: #22d3ee; }
+        .save-btn { width: 100%; background: linear-gradient(90deg, #06b6d4, #3b82f6); color: white; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 1.1rem; margin-top: 10px; box-shadow: 0 4px 10px rgba(6, 182, 212, 0.3); }
+        .save-btn:active { transform: translateY(2px); }
     </style>
 </head>
 <body class="pb-24">
 
-    <header class="bg-slate-900/90 backdrop-blur-md border-b border-cyan-500/30 sticky top-0 z-50 transition-all duration-500">
+    <header class="bg-slate-900/90 backdrop-blur-md border-b border-cyan-500/30 sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center max-w-6xl">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-600 to-blue-900 flex items-center justify-center text-white border border-cyan-400 shadow-lg">
@@ -149,16 +96,46 @@
 
     <div id="contentArea" class="container mx-auto px-4 mt-8 max-w-6xl space-y-10"></div>
 
-    <div id="statusModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/60 transition-opacity duration-300 opacity-0 pointer-events-none">
-        <div class="bg-slate-800 border border-slate-600 rounded-2xl p-6 w-11/12 max-w-sm shadow-2xl relative transform transition-all scale-95 duration-300">
-            <button onclick="closeModal()" class="absolute top-3 right-3 text-slate-400 hover:text-white text-2xl"><i class="fas fa-times"></i></button>
-            <h2 class="text-xl font-bold text-white mb-4 text-center">อัปเดตสถานะ</h2>
+    <div id="statusModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-white">อัปเดตสถานะ</h2>
+                <button onclick="closeModal('statusModal')" class="text-slate-400 hover:text-white"><i class="fas fa-times text-2xl"></i></button>
+            </div>
             <div class="space-y-3">
                 <button onclick="changeStatus('#00ff00')" class="status-btn btn-green"><i class="fas fa-user-check text-2xl"></i> คนไข้มาแล้ว</button>
                 <button onclick="changeStatus('#ff00ff')" class="status-btn btn-pink"><i class="fas fa-phone-volume text-2xl"></i> โทรแจ้งแล้ว</button>
                 <button onclick="changeStatus('#ffff00')" class="status-btn btn-yellow"><i class="fas fa-exclamation-triangle text-2xl"></i> ติดต่อไม่ได้</button>
                 <button onclick="changeStatus('cancel')" class="status-btn btn-red"><i class="fas fa-ban text-2xl"></i> ยกเลิก / ขีดฆ่า</button>
-                <button onclick="changeStatus('clear')" class="status-btn btn-white"><i class="fas fa-eraser text-2xl"></i> ล้างสถานะ (ปกติ)</button>
+                <button onclick="changeStatus('clear')" class="status-btn btn-white"><i class="fas fa-eraser text-2xl"></i> ล้างสถานะ</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-white"><i class="fas fa-edit text-cyan-400 mr-2"></i>แก้ไขข้อมูล</h2>
+                <button onclick="closeModal('editModal')" class="text-slate-400 hover:text-white"><i class="fas fa-times text-2xl"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div class="input-group">
+                    <label>ชื่อ - สกุล (แถว 1)</label>
+                    <input type="text" id="edit-val1" placeholder="ระบุชื่อคนไข้">
+                </div>
+                <div class="input-group">
+                    <label>เบอร์โทร (แถว 2)</label>
+                    <input type="text" id="edit-val2" placeholder="ระบุเบอร์โทร">
+                </div>
+                <div class="input-group">
+                    <label>รายการรักษา (แถว 3)</label>
+                    <input type="text" id="edit-val3" placeholder="เช่น นวดรักษา, จอง">
+                </div>
+                <div class="input-group">
+                    <label>หมายเหตุ (แถว 4)</label>
+                    <input type="text" id="edit-val4" placeholder="เช่น อาการ, รถเสีย">
+                </div>
+                <button onclick="saveEditData()" class="save-btn">บันทึกข้อมูล</button>
             </div>
         </div>
     </div>
@@ -191,86 +168,107 @@
             finally { if(refreshIcon) refreshIcon.classList.remove('spin-slow'); }
         }
 
+        // --- Logic: เปลี่ยนสถานะสี ---
         async function changeStatus(colorCode) {
             if (!selectedCard) return;
             const targetId = selectedCard.id; 
             const targetBtn = document.getElementById(`setting-btn-${targetId}`);
-            const cardEl = document.getElementById(`card-${targetId}`); // หาการ์ดใบนั้น
+            const cardEl = document.getElementById(`card-${targetId}`);
 
             const payload = {
                 date: selectedCard.sheetDate,
                 row: selectedCard.sheetRow,
                 col: selectedCard.sheetCol,
-                color: colorCode
+                color: colorCode,
+                mode: 'status' // บอก Backend ว่านี่คือการเปลี่ยนสี
             };
 
-            closeModal();
+            closeModal('statusModal');
             
-            // ★★★ INSTANT ANIMATION (Optimistic UI) ★★★
-            // เปลี่ยนสีการ์ดทันที ไม่ต้องรอ Server
+            // Animation เปลี่ยนสีทันที
             if(cardEl) {
-                // ลบ Class สีเดิมออกให้หมด
                 cardEl.classList.remove('theme-sheet-green', 'theme-sheet-pink', 'theme-sheet-yellow', 'theme-sheet-red', 'theme-normal', 'theme-cancel');
-                
-                // ใส่ Class ใหม่ตามปุ่มที่กด (พร้อม Animation Transition)
                 if(colorCode === '#00ff00') cardEl.classList.add('theme-sheet-green');
                 else if(colorCode === '#ff00ff') cardEl.classList.add('theme-sheet-pink');
                 else if(colorCode === '#ffff00') cardEl.classList.add('theme-sheet-yellow');
-                else if(colorCode === 'cancel') cardEl.classList.add('theme-sheet-red'); // สีแดงทันที!
+                else if(colorCode === 'cancel') cardEl.classList.add('theme-sheet-red'); 
                 else if(colorCode === 'clear') cardEl.classList.add('theme-normal');
-                
-                // เพิ่ม Effect โหลดวิ้งๆ
                 cardEl.classList.add('card-loading');
             }
-
             if(targetBtn) targetBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
             try {
-                await fetch(API_URL, {
-                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                // รอ Animation เล่นสวยๆ สักพัก แล้วค่อยโหลดข้อมูลจริง
+                await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 setTimeout(() => fetchData(false), 2000); 
-
             } catch (e) {
                 alert('Connection Error');
                 if(targetBtn) targetBtn.innerHTML = '<i class="fas fa-cog"></i>';
-                if(cardEl) cardEl.classList.remove('card-loading'); // เอาโหลดออกถ้าพัง
+                if(cardEl) cardEl.classList.remove('card-loading');
             }
         }
 
-        function openModal(cardDataJson) {
+        // --- Logic: บันทึกข้อมูลแก้ไข (NEW) ---
+        async function saveEditData() {
+            if (!selectedCard) return;
+            const targetId = selectedCard.id;
+            const editBtn = document.getElementById(`edit-btn-${targetId}`);
+            const cardEl = document.getElementById(`card-${targetId}`);
+
+            // รับค่าจากฟอร์ม
+            const val1 = document.getElementById('edit-val1').value;
+            const val2 = document.getElementById('edit-val2').value;
+            const val3 = document.getElementById('edit-val3').value;
+            const val4 = document.getElementById('edit-val4').value;
+
+            const payload = {
+                date: selectedCard.sheetDate,
+                row: selectedCard.sheetRow,
+                col: selectedCard.sheetCol,
+                mode: 'edit_data', // บอก Backend ว่านี่คือการแก้ข้อมูล
+                val1: val1,
+                val2: val2,
+                val3: val3,
+                val4: val4
+            };
+
+            closeModal('editModal');
+            if(cardEl) cardEl.classList.add('card-loading'); // หมุนรอ
+            if(editBtn) editBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+                await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                setTimeout(() => fetchData(false), 2000); // รีโหลดข้อมูลใหม่
+            } catch (e) {
+                alert('บันทึกไม่สำเร็จ');
+                if(cardEl) cardEl.classList.remove('card-loading');
+                if(editBtn) editBtn.innerHTML = '<i class="fas fa-pen"></i>';
+            }
+        }
+
+        // --- UI Modal Functions ---
+        function openStatusModal(cardDataJson) {
             selectedCard = JSON.parse(decodeURIComponent(cardDataJson));
-            const modal = document.getElementById('statusModal');
-            const inner = modal.querySelector('div');
-            
-            modal.classList.remove('hidden');
-            // Animation เปิด Modal
-            setTimeout(() => {
-                modal.classList.remove('opacity-0', 'pointer-events-none');
-                inner.classList.remove('scale-95');
-                inner.classList.add('scale-100');
-            }, 10);
+            document.getElementById('statusModal').classList.add('active');
         }
 
-        function closeModal() {
-            const modal = document.getElementById('statusModal');
-            const inner = modal.querySelector('div');
+        function openEditModal(cardDataJson) {
+            selectedCard = JSON.parse(decodeURIComponent(cardDataJson));
+            // เอาข้อมูลเดิมมาใส่ในช่อง Input
+            document.getElementById('edit-val1').value = selectedCard.rawVal1 || "";
+            document.getElementById('edit-val2').value = selectedCard.rawVal2 || "";
+            document.getElementById('edit-val3').value = selectedCard.rawVal3 || "";
+            document.getElementById('edit-val4').value = selectedCard.rawVal4 || "";
             
-            // Animation ปิด Modal
-            modal.classList.add('opacity-0', 'pointer-events-none');
-            inner.classList.remove('scale-100');
-            inner.classList.add('scale-95');
-            
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                selectedCard = null;
-            }, 300);
+            document.getElementById('editModal').classList.add('active');
         }
 
-        function setupFilter(data) {
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            selectedCard = null;
+        }
+
+        // --- Standard Logic (Filter, Render) ---
+        function setupFilter(data) { /* Same as before */ 
             const select = document.getElementById('staffFilter');
             const current = select.value;
             const staffSet = new Set(data.map(d => d.staff));
@@ -281,15 +279,12 @@
             });
             select.value = current;
         }
-
         function filterData() {
             const who = document.getElementById('staffFilter').value;
             if(who === 'all') renderTimeline(allData);
             else renderTimeline(allData.filter(d => d.staff === who));
         }
-
         function isJobFinished(timeStr) { return false; }
-
         function formatBadge(text) {
             if (!text) return '';
             if (text.includes('จอง')) {
@@ -322,12 +317,12 @@
                     let themeClass = 'theme-normal';
                     let patientName = item.patient;
                     const bg = (item.bgColor || "").toLowerCase();
-                    const isSheetColor = (bg === '#00ff00' || bg === '#lime' || bg === '#ff00ff' || bg === '#magenta' || bg === '#ffff00' || bg === '#yellow' || bg === '#ef4444');
+                    const isSheetColor = (bg === '#00ff00' || bg === '#lime' || bg === '#ff00ff' || bg === '#magenta' || bg === '#ffff00' || bg === '#yellow' || bg === '#ef4444' || bg === 'red');
 
                     if (bg === '#00ff00' || bg === '#lime') themeClass = 'theme-sheet-green';
                     else if (bg === '#ff00ff' || bg === '#magenta' || bg === '#ea4335') themeClass = 'theme-sheet-pink';
                     else if (bg === '#ffff00' || bg === '#yellow') themeClass = 'theme-sheet-yellow';
-                    else if (bg === '#ef4444') themeClass = 'theme-sheet-red';
+                    else if (bg === '#ef4444' || bg === 'red') themeClass = 'theme-sheet-red';
 
                     let statusIcon = '';
                     if (item.status === 'available') {
@@ -365,18 +360,22 @@
                         ? `<a href="tel:${item.tel}" class="icon-btn"><i class="fas fa-phone"></i></a>` : '';
                     
                     const itemDataStr = encodeURIComponent(JSON.stringify(item));
-                    const settingBtn = `<button id="setting-btn-${item.id}" onclick="openModal('${itemDataStr}')" class="icon-btn ml-2 hover:bg-white/20"><i class="fas fa-cog"></i></button>`;
+                    
+                    // ★★★ ปุ่มควบคุม (Settings & Edit) ★★★
+                    const settingBtn = `<button id="setting-btn-${item.id}" onclick="openStatusModal('${itemDataStr}')" class="icon-btn ml-2 hover:bg-white/20"><i class="fas fa-cog"></i></button>`;
+                    const editBtn = `<button id="edit-btn-${item.id}" onclick="openEditModal('${itemDataStr}')" class="icon-btn ml-2 hover:bg-white/20"><i class="fas fa-pen text-sm"></i></button>`;
 
                     const roomBadge = item.room ? `<div class="absolute bottom-3 right-3"><span class="room-tag">${item.room}</span></div>` : '';
 
-                    // เพิ่ม ID ให้การ์ดเพื่อทำ Animation
                     html += `
                         <div class="h-full">
                             <div id="card-${item.id}" class="queue-card ${themeClass}">
                                 <div class="card-header-layer">
                                     <div class="flex justify-between items-start mb-1">
                                         <div class="staff-name flex-1 pr-2"><i class="fas fa-user-md mr-1 opacity-50 text-base"></i>${item.staff}</div>
-                                        <div class="flex">${telBtn}${settingBtn}</div>
+                                        <div class="flex items-center">
+                                            ${telBtn}
+                                            ${editBtn} ${settingBtn} </div>
                                     </div>
                                     <div class="patient-name-container justify-between border-t border-white/10 pt-1">
                                         <div class="patient-text w-full">${patientName}</div>
