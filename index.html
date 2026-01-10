@@ -3,54 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sadao Queue V28 (Dropdown Edit)</title>
+    <title>Sadao Queue V29 (Mobile Optimized)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* --- Styles เดิม (คงไว้ทั้งหมด) --- */
-        body { font-family: 'Sarabun', sans-serif; background-color: #0b1021; color: #e2e8f0; min-height: 100vh; overflow-x: hidden; background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px), radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px); background-size: 550px 550px, 350px 350px; animation: starMove 120s linear infinite; }
+        /* --- CORE THEME --- */
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #0b1021; color: #e2e8f0; min-height: 100vh; overflow-x: hidden;
+            background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px), radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px);
+            background-size: 550px 550px, 350px 350px; animation: starMove 120s linear infinite;
+        }
         @keyframes starMove { from { background-position: 0 0; } to { background-position: 550px 550px; } }
-        .time-header { font-family: 'Rajdhani', sans-serif; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); border-left: 6px solid #22d3ee; box-shadow: 0 0 20px rgba(6, 182, 212, 0.2); color: #fff; padding: 12px 20px; font-size: 1.8rem; font-weight: 700; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
-        .queue-card { border-radius: 20px; padding: 12px; position: relative; transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.6s ease, box-shadow 0.6s ease, transform 0.3s ease; display: flex; flex-direction: column; height: 100%; border: 1px solid rgba(255, 255, 255, 0.08); overflow: hidden; }
+
+        /* Headers (ลดขนาดลงนิดนึง) */
+        .time-header {
+            font-family: 'Rajdhani', sans-serif; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px);
+            border-left: 5px solid #22d3ee; box-shadow: 0 0 15px rgba(6, 182, 212, 0.2); color: #fff;
+            padding: 8px 16px; font-size: 1.5rem; font-weight: 700; border-radius: 10px; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        /* Card Structure (Compact) */
+        .queue-card {
+            border-radius: 16px; padding: 10px; /* ลด Padding */
+            position: relative; transition: all 0.3s ease;
+            display: flex; flex-direction: column; height: 100%; 
+            border: 1px solid rgba(255, 255, 255, 0.08); overflow: hidden;
+        }
+
         .card-loading { animation: cardPulse 1.5s infinite alternate; }
         @keyframes cardPulse { 0% { box-shadow: 0 0 10px rgba(255,255,255,0.1); } 100% { box-shadow: 0 0 25px rgba(255,255,255,0.4); filter: brightness(1.1); } }
-        .card-header-layer { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px); border-radius: 14px; padding: 10px 14px; margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 10px rgba(255,255,255,0.05); transition: background 0.5s ease; }
-        .theme-sheet-green .card-header-layer, .theme-sheet-pink .card-header-layer, .theme-sheet-yellow .card-header-layer, .theme-sheet-red .card-header-layer { background: rgba(255, 255, 255, 0.25); border-color: rgba(255,255,255,0.3); }
-        .theme-normal { background: rgba(30, 41, 59, 0.85); border-left: 6px solid #94a3b8; }
-        .theme-free { background: rgba(6, 78, 59, 0.6); border: 1px solid #10b981; border-left: 6px solid #10b981; color: #d1fae5; }
-        .theme-cancel { background: #334155; color: #94a3b8; border-left: 6px solid #64748b; opacity: 0.9; }
-        .theme-sheet-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); color: #fff; border: 2px solid #86efac; box-shadow: 0 8px 20px rgba(22, 163, 74, 0.3); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+
+        /* Header Layer (Compact) */
+        .card-header-layer {
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px); border-radius: 12px;
+            padding: 8px 12px; margin-bottom: 8px; border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.05); transition: background 0.5s ease;
+        }
+        .theme-sheet-green .card-header-layer, .theme-sheet-pink .card-header-layer, .theme-sheet-yellow .card-header-layer, .theme-sheet-red .card-header-layer {
+            background: rgba(255, 255, 255, 0.25); border-color: rgba(255,255,255,0.3);
+        }
+
+        /* Themes */
+        .theme-normal { background: rgba(30, 41, 59, 0.85); border-left: 5px solid #94a3b8; }
+        .theme-free { background: rgba(6, 78, 59, 0.6); border: 1px solid #10b981; border-left: 5px solid #10b981; color: #d1fae5; }
+        .theme-cancel { background: #334155; color: #94a3b8; border-left: 5px solid #64748b; opacity: 0.9; }
+
+        .theme-sheet-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); color: #fff; border: 2px solid #86efac; box-shadow: 0 4px 15px rgba(22, 163, 74, 0.3); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         .theme-sheet-pink { background: linear-gradient(135deg, #e879f9 0%, #a21caf 100%); color: #fff; border: 2px solid #f5d0fe; }
         .theme-sheet-yellow { background: linear-gradient(135deg, #facc15 0%, #a16207 100%); color: #422006; border: 2px solid #fef08a; text-shadow: none; }
-        .theme-sheet-red { background: linear-gradient(135deg, #ef4444 0%, #7f1d1d 100%); color: #fff; border: 2px solid #f87171; box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
-        .staff-name { font-size: 1.3rem; font-weight: 800; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.9; margin-bottom: 4px; }
-        .patient-name-container { height: 50px; display: flex; align-items: center; }
-        .patient-text { font-size: 1.5rem; font-weight: 700; line-height: 1.1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .badge-booking { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(145deg, #fb923c, #c2410c); color: white; padding: 3px 10px; border-radius: 6px; font-size: 0.9rem; font-weight: 800; box-shadow: 0 3px 0 #9a3412; margin-right: 6px; margin-bottom: 4px; transform: translateY(-2px); border: 1px solid rgba(255,255,255,0.2); }
-        .badge-treatment { display: inline-block; padding: 4px 10px; border-radius: 8px; font-weight: 600; font-size: 1rem; }
+        .theme-sheet-red { background: linear-gradient(135deg, #ef4444 0%, #7f1d1d 100%); color: #fff; border: 2px solid #f87171; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
+
+        /* Typography Fixes */
+        .staff-name { 
+            font-size: 1.15rem; /* ลดขนาดชื่อหมอ */
+            font-weight: 800; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.9; margin-bottom: 2px; 
+        }
+        
+        .patient-name-container { 
+            min-height: 52px; /* ใช้ min-height แทน height เพื่อยืดหยุ่น */
+            display: flex; align-items: center; 
+            padding-bottom: 4px; /* กันสระล่างขาด */
+        }
+        
+        .patient-text { 
+            font-size: 1.3rem; /* ปรับลดจาก 1.5 เพื่อกวาดสายตาง่าย */
+            font-weight: 700; 
+            line-height: 1.4; /* ★ แก้สระวรรณยุกต์ซ้อนทับ/ขาด ★ */
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; 
+            padding-top: 2px; /* กันสระบนขาด */
+        }
+
+        /* Time Badge in Card (NEW) */
+        .card-time-badge {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.85rem;
+            background: rgba(0,0,0,0.3);
+            padding: 1px 6px;
+            border-radius: 4px;
+            color: #22d3ee;
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            margin-bottom: 2px;
+            display: inline-block;
+        }
+        /* ปรับสีป้ายเวลาเมื่ออยู่บนพื้นสีสด */
+        .theme-sheet-green .card-time-badge, .theme-sheet-pink .card-time-badge, .theme-sheet-yellow .card-time-badge, .theme-sheet-red .card-time-badge {
+            color: #fff; border-color: rgba(255,255,255,0.4); background: rgba(0,0,0,0.15);
+        }
+        .theme-sheet-yellow .card-time-badge { color: #422006; border-color: rgba(66, 32, 6, 0.2); }
+
+        /* Badges */
+        .badge-booking { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(145deg, #fb923c, #c2410c); color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 800; box-shadow: 0 2px 0 #9a3412; margin-right: 5px; margin-bottom: 2px; transform: translateY(-1px); border: 1px solid rgba(255,255,255,0.2); }
+        .badge-treatment { display: inline-block; padding: 2px 8px; border-radius: 6px; font-weight: 600; font-size: 0.95rem; }
         .theme-normal .badge-treatment { background: rgba(6, 182, 212, 0.15); border: 1px solid #06b6d4; color: #67e8f9; }
         .theme-sheet-green .badge-treatment, .theme-sheet-pink .badge-treatment, .theme-sheet-yellow .badge-treatment, .theme-sheet-red .badge-treatment { background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.3); color: inherit; }
-        .strike-text { color: #fca5a5; text-decoration: line-through; font-weight: 700; font-size: 1rem; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 6px; }
+
+        .strike-text { color: #fca5a5; text-decoration: line-through; font-weight: 700; font-size: 0.95rem; background: rgba(0,0,0,0.5); padding: 1px 6px; border-radius: 4px; }
         .theme-sheet-yellow .strike-text { color: #991b1b; background: rgba(255,255,255,0.5); }
         .theme-sheet-red .strike-text { color: #fee2e2; background: rgba(0,0,0,0.2); text-decoration-color: #fff; }
         .theme-sheet-green .strike-text, .theme-sheet-pink .strike-text { color: #fff; background: rgba(0,0,0,0.2); }
-        .room-tag { font-family: 'Rajdhani', sans-serif; background: #000; color: #facc15; border: 1px solid #ca8a04; padding: 2px 10px; border-radius: 6px; font-size: 1.1rem; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .icon-btn { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; transition: all 0.2s; cursor: pointer; }
+
+        .room-tag { font-family: 'Rajdhani', sans-serif; background: #000; color: #facc15; border: 1px solid #ca8a04; padding: 1px 8px; border-radius: 6px; font-size: 1rem; font-weight: 700; box-shadow: 0 3px 8px rgba(0,0,0,0.3); }
+
+        /* Buttons (ปรับขนาดให้กดง่ายบนมือถือ) */
+        .icon-btn { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; transition: all 0.2s; cursor: pointer; }
         .icon-btn:hover { transform: scale(1.1); background: rgba(255,255,255,0.4); }
         .theme-sheet-yellow .icon-btn { color: #422006; border-color: rgba(66, 32, 6, 0.2); background: rgba(255,255,255,0.4); }
-        .fade-in { animation: fadeIn 0.4s ease-out; } @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .spin-slow { animation: spin 2s linear infinite; } @keyframes spin { 100% { transform: rotate(360deg); } }
 
         /* Modal Styles */
         .modal-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: flex; justify-content: center; items-center; transition: opacity 0.3s; opacity: 0; pointer-events: none; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-box { background: #1e293b; border: 1px solid #475569; border-radius: 16px; padding: 24px; width: 90%; max-width: 400px; transform: scale(0.9); transition: transform 0.3s; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+        .modal-box { background: #1e293b; border: 1px solid #475569; border-radius: 16px; padding: 20px; width: 90%; max-width: 380px; transform: scale(0.9); transition: transform 0.3s; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
         .modal-overlay.active .modal-box { transform: scale(1); }
         
-        .status-btn { width: 100%; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; transition: transform 0.1s; border: 2px solid transparent; margin-bottom: 10px; }
+        .status-btn { width: 100%; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 10px; transition: transform 0.1s; border: 2px solid transparent; margin-bottom: 8px; }
         .status-btn:active { transform: scale(0.98); }
         .btn-green { background: #22c55e; color: #022c22; border-color: #86efac; }
         .btn-pink { background: #e879f9; color: #4a044e; border-color: #fbcfe8; }
@@ -58,56 +128,58 @@
         .btn-red { background: #ef4444; color: white; border-color: #f87171; }
         .btn-white { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
 
-        /* Input Style for Edit Modal */
-        .input-group label { display: block; color: #94a3b8; font-size: 0.9rem; margin-bottom: 4px; }
+        .input-group label { display: block; color: #94a3b8; font-size: 0.85rem; margin-bottom: 4px; }
         .input-group input, .input-group select { width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 10px; border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.2s; }
         .input-group input:focus { border-color: #22d3ee; }
         .save-btn { width: 100%; background: linear-gradient(90deg, #06b6d4, #3b82f6); color: white; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 1.1rem; margin-top: 10px; box-shadow: 0 4px 10px rgba(6, 182, 212, 0.3); }
         .save-btn:active { transform: translateY(2px); }
+
+        .fade-in { animation: fadeIn 0.4s ease-out; } @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .spin-slow { animation: spin 2s linear infinite; } @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="pb-24">
+<body class="pb-20">
 
     <header class="bg-slate-900/90 backdrop-blur-md border-b border-cyan-500/30 sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center max-w-6xl">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-600 to-blue-900 flex items-center justify-center text-white border border-cyan-400 shadow-lg">
-                    <i class="fas fa-spa text-2xl"></i>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-600 to-blue-900 flex items-center justify-center text-white border border-cyan-400 shadow-lg">
+                    <i class="fas fa-spa text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-extrabold text-white tracking-wide">คิวงานแพทย์แผนไทย</h1>
-                    <div class="flex items-center gap-2 text-cyan-400 text-xs font-mono mt-1">
-                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <h1 class="text-xl font-extrabold text-white tracking-wide">คิวแพทย์แผนไทย</h1>
+                    <div class="flex items-center gap-2 text-cyan-400 text-[10px] font-mono mt-0.5">
+                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                         <span id="lastUpdate">TEST MODE: 12/1</span>
                     </div>
                 </div>
             </div>
-            <button onclick="fetchData(false)" class="w-12 h-12 rounded-full bg-slate-800 text-cyan-400 border border-slate-600 hover:bg-cyan-900 hover:text-white flex items-center justify-center transition shadow-lg">
-                <i class="fas fa-sync-alt text-xl" id="refreshIcon"></i>
+            <button onclick="fetchData(false)" class="w-10 h-10 rounded-full bg-slate-800 text-cyan-400 border border-slate-600 hover:bg-cyan-900 hover:text-white flex items-center justify-center transition shadow-lg">
+                <i class="fas fa-sync-alt text-lg" id="refreshIcon"></i>
             </button>
         </div>
     </header>
 
-    <div class="container mx-auto px-4 mt-8 max-w-6xl">
-        <select id="staffFilter" onchange="filterData()" class="w-full p-4 bg-slate-900 text-white border border-slate-700 rounded-lg text-xl font-bold focus:outline-none focus:border-cyan-500 cursor-pointer shadow-xl appearance-none">
+    <div class="container mx-auto px-4 mt-6 max-w-6xl">
+        <select id="staffFilter" onchange="filterData()" class="w-full p-3 bg-slate-900 text-white border border-slate-700 rounded-xl text-lg font-bold focus:outline-none focus:border-cyan-500 cursor-pointer shadow-xl appearance-none">
             <option value="all">⚡ แสดงคิวของทุกคน (Show All)</option>
         </select>
     </div>
 
-    <div id="contentArea" class="container mx-auto px-4 mt-8 max-w-6xl space-y-10"></div>
+    <div id="contentArea" class="container mx-auto px-4 mt-6 max-w-6xl space-y-8"></div>
 
     <div id="statusModal" class="modal-overlay">
         <div class="modal-box">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-white">อัปเดตสถานะ</h2>
-                <button onclick="closeModal('statusModal')" class="text-slate-400 hover:text-white"><i class="fas fa-times text-2xl"></i></button>
+                <h2 class="text-lg font-bold text-white">อัปเดตสถานะ</h2>
+                <button onclick="closeModal('statusModal')" class="text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
             </div>
             <div class="space-y-3">
-                <button onclick="changeStatus('#00ff00')" class="status-btn btn-green"><i class="fas fa-user-check text-2xl"></i> คนไข้มาแล้ว</button>
-                <button onclick="changeStatus('#ff00ff')" class="status-btn btn-pink"><i class="fas fa-phone-volume text-2xl"></i> โทรแจ้งแล้ว</button>
-                <button onclick="changeStatus('#ffff00')" class="status-btn btn-yellow"><i class="fas fa-exclamation-triangle text-2xl"></i> ติดต่อไม่ได้</button>
-                <button onclick="changeStatus('cancel')" class="status-btn btn-red"><i class="fas fa-ban text-2xl"></i> ยกเลิก / ขีดฆ่า</button>
-                <button onclick="changeStatus('clear')" class="status-btn btn-white"><i class="fas fa-eraser text-2xl"></i> ล้างสถานะ</button>
+                <button onclick="changeStatus('#00ff00')" class="status-btn btn-green"><i class="fas fa-user-check"></i> คนไข้มาแล้ว</button>
+                <button onclick="changeStatus('#ff00ff')" class="status-btn btn-pink"><i class="fas fa-phone-volume"></i> โทรแจ้งแล้ว</button>
+                <button onclick="changeStatus('#ffff00')" class="status-btn btn-yellow"><i class="fas fa-exclamation-triangle"></i> ติดต่อไม่ได้</button>
+                <button onclick="changeStatus('cancel')" class="status-btn btn-red"><i class="fas fa-ban"></i> ยกเลิก / ขีดฆ่า</button>
+                <button onclick="changeStatus('clear')" class="status-btn btn-white"><i class="fas fa-eraser"></i> ล้างสถานะ</button>
             </div>
         </div>
     </div>
@@ -115,31 +187,29 @@
     <div id="editModal" class="modal-overlay">
         <div class="modal-box">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-white"><i class="fas fa-edit text-cyan-400 mr-2"></i>แก้ไขข้อมูล</h2>
-                <button onclick="closeModal('editModal')" class="text-slate-400 hover:text-white"><i class="fas fa-times text-2xl"></i></button>
+                <h2 class="text-lg font-bold text-white"><i class="fas fa-edit text-cyan-400 mr-2"></i>แก้ไขข้อมูล</h2>
+                <button onclick="closeModal('editModal')" class="text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
             </div>
-            <div class="space-y-4">
+            <div class="space-y-3">
                 <div class="input-group">
-                    <label>ชื่อ - สกุล (แถว 1)</label>
+                    <label>ชื่อ - สกุล</label>
                     <input type="text" id="edit-val1" placeholder="ระบุชื่อคนไข้">
                 </div>
                 <div class="input-group">
-                    <label>เบอร์โทร (แถว 2)</label>
+                    <label>เบอร์โทร</label>
                     <input type="text" id="edit-val2" placeholder="ระบุเบอร์โทร">
                 </div>
-                
                 <div class="input-group">
-                    <label>รายการรักษา (แถว 3)</label>
-                    <input type="text" id="edit-val3" list="treatment-options" placeholder="เลือกรายการ หรือพิมพ์เอง...">
+                    <label>รายการรักษา</label>
+                    <input type="text" id="edit-val3" list="treatment-options" placeholder="เลือกรายการ...">
                     <datalist id="treatment-options">
                         <option value="นวดตัวส่งเสริม">
                         <option value="นวดรักษา">
                         <option value="จอง">
                     </datalist>
                 </div>
-
                 <div class="input-group">
-                    <label>หมายเหตุ (แถว 4)</label>
+                    <label>หมายเหตุ</label>
                     <input type="text" id="edit-val4" placeholder="เช่น อาการ, รถเสีย">
                 </div>
                 <button onclick="saveEditData()" class="save-btn">บันทึกข้อมูล</button>
@@ -228,10 +298,7 @@
                 row: selectedCard.sheetRow,
                 col: selectedCard.sheetCol,
                 mode: 'edit_data',
-                val1: val1,
-                val2: val2,
-                val3: val3,
-                val4: val4
+                val1: val1, val2: val2, val3: val3, val4: val4
             };
 
             closeModal('editModal');
@@ -310,7 +377,7 @@
 
             Object.keys(groups).sort().forEach(time => {
                 const items = groups[time];
-                let html = `<div class="fade-in"><div class="time-header"><i class="far fa-clock text-cyan-300"></i> ${time} น.</div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">`;
+                let html = `<div class="fade-in"><div class="time-header"><i class="far fa-clock text-cyan-300"></i> ${time} น.</div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">`;
 
                 items.forEach(item => {
                     let themeClass = 'theme-normal';
@@ -327,15 +394,15 @@
                     if (item.status === 'available') {
                         if(themeClass === 'theme-normal') themeClass = 'theme-free'; 
                         patientName = `<span class="text-emerald-300 drop-shadow-md">ว่าง</span>`;
-                        statusIcon = `<i class="fas fa-check-circle text-emerald-400 text-2xl"></i>`;
+                        statusIcon = `<i class="fas fa-check-circle text-emerald-400 text-xl"></i>`;
                     } else if (item.status === 'cancelled') {
                         themeClass = 'theme-cancel';
                         if (bg === '#ef4444') themeClass = 'theme-sheet-red'; 
                         patientName = `<span class="line-through opacity-60">${item.patient}</span>`;
-                        statusIcon = `<i class="fas fa-ban text-slate-400 text-2xl"></i>`;
+                        statusIcon = `<i class="fas fa-ban text-slate-400 text-xl"></i>`;
                     } else {
-                        statusIcon = isSheetColor ? `<i class="fas fa-user text-black opacity-20 text-2xl"></i>` : `<i class="fas fa-user text-cyan-200 opacity-30 text-2xl"></i>`;
-                        if (bg === '#ef4444') statusIcon = `<i class="fas fa-user-times text-white opacity-50 text-2xl"></i>`;
+                        statusIcon = isSheetColor ? `<i class="fas fa-user text-black opacity-20 text-xl"></i>` : `<i class="fas fa-user text-cyan-200 opacity-30 text-xl"></i>`;
+                        if (bg === '#ef4444') statusIcon = `<i class="fas fa-user-times text-white opacity-50 text-xl"></i>`;
                     }
 
                     let contentHtml = '';
@@ -345,33 +412,35 @@
                         let row1Html = formatBadge(txtTreatment);
                         let row2Html = '';
                         if (txtRemarks !== '') {
-                            if (item.isRemarkStrike) row2Html = `<div class="mt-2"><span class="strike-text"><i class="fas fa-user-times mr-1"></i>${txtRemarks}</span></div>`;
-                            else row2Html = `<div class="mt-2 text-lg font-medium opacity-90">${formatBadge(txtRemarks)}</div>`;
+                            if (item.isRemarkStrike) row2Html = `<div class="mt-1"><span class="strike-text"><i class="fas fa-user-times mr-1"></i>${txtRemarks}</span></div>`;
+                            else row2Html = `<div class="mt-1 text-base font-medium opacity-90">${formatBadge(txtRemarks)}</div>`;
                         }
-                        contentHtml = `<div class="mt-2 flex flex-col justify-start"><div>${row1Html}</div>${row2Html}</div>`;
+                        contentHtml = `<div class="mt-1 flex flex-col justify-start"><div>${row1Html}</div>${row2Html}</div>`;
                     } else if (item.status === 'available') {
-                        contentHtml = `<div class="mt-2 opacity-70 text-lg">พร้อมให้บริการ</div>`;
+                        contentHtml = `<div class="mt-1 opacity-70 text-base">พร้อมให้บริการ</div>`;
                     } else if (item.status === 'cancelled') {
-                        contentHtml = `<div class="mt-2 font-bold opacity-70">ยกเลิกนัด</div>`;
+                        contentHtml = `<div class="mt-1 font-bold opacity-70">ยกเลิกนัด</div>`;
                     }
 
                     const telBtn = (item.tel && item.status !== 'available' && item.status !== 'cancelled') 
                         ? `<a href="tel:${item.tel}" class="icon-btn"><i class="fas fa-phone"></i></a>` : '';
                     
                     const itemDataStr = encodeURIComponent(JSON.stringify(item));
-                    
-                    const settingBtn = `<button id="setting-btn-${item.id}" onclick="openStatusModal('${itemDataStr}')" class="icon-btn ml-2 hover:bg-white/20"><i class="fas fa-cog"></i></button>`;
-                    const editBtn = `<button id="edit-btn-${item.id}" onclick="openEditModal('${itemDataStr}')" class="icon-btn ml-2 hover:bg-white/20"><i class="fas fa-pen text-sm"></i></button>`;
+                    const settingBtn = `<button id="setting-btn-${item.id}" onclick="openStatusModal('${itemDataStr}')" class="icon-btn ml-1 hover:bg-white/20"><i class="fas fa-cog"></i></button>`;
+                    const editBtn = `<button id="edit-btn-${item.id}" onclick="openEditModal('${itemDataStr}')" class="icon-btn ml-1 hover:bg-white/20"><i class="fas fa-pen text-xs"></i></button>`;
 
-                    const roomBadge = item.room ? `<div class="absolute bottom-3 right-3"><span class="room-tag">${item.room}</span></div>` : '';
+                    const roomBadge = item.room ? `<div class="absolute bottom-2 right-2"><span class="room-tag">${item.room}</span></div>` : '';
 
                     html += `
                         <div class="h-full">
                             <div id="card-${item.id}" class="queue-card ${themeClass}">
                                 <div class="card-header-layer">
                                     <div class="flex justify-between items-start mb-1">
-                                        <div class="staff-name flex-1 pr-2"><i class="fas fa-user-md mr-1 opacity-50 text-base"></i>${item.staff}</div>
-                                        <div class="flex items-center">
+                                        <div class="flex items-center gap-2 overflow-hidden">
+                                            <div class="card-time-badge">${item.time}</div>
+                                            <div class="staff-name flex-1 truncate">${item.staff}</div>
+                                        </div>
+                                        <div class="flex items-center shrink-0">
                                             ${telBtn}
                                             ${editBtn}
                                             ${settingBtn}
@@ -382,7 +451,7 @@
                                         <div class="pl-2">${statusIcon}</div>
                                     </div>
                                 </div>
-                                <div class="px-2 pb-8">${contentHtml}${roomBadge}</div>
+                                <div class="px-2 pb-6">${contentHtml}${roomBadge}</div>
                             </div>
                         </div>
                     `;
