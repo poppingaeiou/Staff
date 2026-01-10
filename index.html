@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sadao Queue V9 (Status Color)</title>
+    <title>Sadao Queue V10 (Color Sync)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
@@ -17,7 +17,6 @@
             min-height: 100vh;
         }
 
-        /* Time Header */
         .time-header {
             font-family: 'Rajdhani', sans-serif;
             background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%);
@@ -33,7 +32,7 @@
             gap: 10px;
         }
 
-        /* --- Queue Card Base --- */
+        /* Card Base */
         .queue-card {
             border-radius: 12px;
             padding: 14px;
@@ -43,53 +42,45 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 140px; /* สูงพอให้เห็นรายละเอียด */
+            min-height: 140px; 
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* --- Status Themes (ตามภาพที่ส่งมา) --- */
+        /* --- THEMES (ตามสี Google Sheet) --- */
         
-        /* 1. ปกติ (Normal) */
+        /* Default */
         .theme-normal { background: #1e293b; color: #f1f5f9; border-left: 6px solid #64748b; }
+        .theme-free { background: rgba(20, 83, 45, 0.3); border: 1px solid #22c55e; border-left: 6px solid #22c55e; color: #dcfce7; }
+        .theme-cancel { background: #475569; color: #cbd5e1; border-left: 6px solid #94a3b8; }
 
-        /* 2. ว่าง (Free) - เขียวอ่อนโปร่งแสง */
-        .theme-free { 
-            background: rgba(20, 83, 45, 0.3); 
-            border: 1px solid #22c55e; 
-            border-left: 6px solid #22c55e;
-            color: #dcfce7;
-        }
-
-        /* 3. คนไข้มาแล้ว (Arrived) - สีเขียวสว่าง (ตัวหนังสือดำ) */
-        .theme-arrived {
-            background: #4ade80; /* Green 400 */
-            color: #064e3b;      /* Green 900 Text */
+        /* สีสดจาก Sheet (ตัวหนังสือต้องเข้มถึงจะอ่านออก) */
+        
+        /* สีเขียว (คนไข้มาแล้ว) */
+        .theme-sheet-green {
+            background: #00ff00; /* เขียวสด */
+            background: linear-gradient(135deg, #00ff00 0%, #4ade80 100%);
+            color: #064e3b; /* ตัวหนังสือเขียวเข้มเกือบดำ */
             border: none;
-            box-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.6);
         }
 
-        /* 4. โทรแจ้งแล้ว (Contacted) - สีชมพูบานเย็น (ตัวหนังสือดำ) */
-        .theme-contacted {
-            background: #e879f9; /* Fuchsia 400 */
-            color: #701a75;      /* Fuchsia 900 Text */
+        /* สีชมพู (โทรแจ้งแล้ว) */
+        .theme-sheet-pink {
+            background: #ff00ff; /* ชมพูสด */
+            background: linear-gradient(135deg, #ff00ff 0%, #e879f9 100%);
+            color: #701a75; /* ตัวหนังสือม่วงเข้ม */
             border: none;
         }
 
-        /* 5. ติดต่อไม่ได้ (Unreachable) - สีเหลือง (ตัวหนังสือดำ) */
-        .theme-unreachable {
-            background: #facc15; /* Yellow 400 */
-            color: #451a03;      /* Yellow 950 Text */
+        /* สีเหลือง (ติดต่อไม่ได้) */
+        .theme-sheet-yellow {
+            background: #ffff00; /* เหลืองสด */
+            background: linear-gradient(135deg, #ffff00 0%, #facc15 100%);
+            color: #451a03; /* ตัวหนังสือสีน้ำตาลเข้ม */
             border: none;
         }
 
-        /* 6. ผิดนัด (Missed) - สีเทาเข้ม */
-        .theme-missed {
-            background: #475569; /* Slate 600 */
-            color: #cbd5e1;
-            border-left: 6px solid #94a3b8;
-        }
-
-        /* ชื่อผู้ช่วย */
+        /* Staff Name */
         .staff-name {
             font-size: 1.6rem;
             font-weight: 700;
@@ -97,21 +88,20 @@
             line-height: 1.1;
         }
 
-        /* ป้ายต่างๆ */
-        .badge-base {
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            display: inline-block;
-            margin-top: 4px;
+        /* Badges */
+        .badge-base { padding: 2px 8px; border-radius: 4px; font-size: 0.9rem; font-weight: 600; display: inline-block; margin-top: 4px; }
+        .badge-blue { background: #172554; color: #93c5fd; border: 1px solid #3b82f6; } 
+        .badge-cyan { background: #083344; color: #67e8f9; border: 1px solid #06b6d4; }
+        
+        /* ปรับสี Badge เมื่ออยู่บนพื้นหลังสีสด */
+        .theme-sheet-green .badge-base, 
+        .theme-sheet-pink .badge-base, 
+        .theme-sheet-yellow .badge-base {
+            background: rgba(255,255,255,0.6);
+            border: 1px solid rgba(0,0,0,0.1);
+            color: #000;
         }
 
-        /* ป้ายแยกประเภท (ใช้เฉพาะตอนเป็นการ์ดปกติ) */
-        .badge-blue { background: #172554; color: #93c5fd; border: 1px solid #3b82f6; } /* นวดส่งเสริม */
-        .badge-cyan { background: #083344; color: #67e8f9; border: 1px solid #06b6d4; } /* นวดรักษา */
-        
-        /* ป้ายเลขห้อง */
         .room-tag {
             font-family: 'Rajdhani', sans-serif;
             background: #422006; color: #facc15;
@@ -119,15 +109,11 @@
             padding: 2px 8px; border-radius: 4px;
             font-size: 1rem; font-weight: 700;
         }
-        
-        /* ปรับสีป้ายเลขห้อง กรณีอยู่บนพื้นหลังสีสว่าง */
-        .theme-arrived .room-tag, .theme-unreachable .room-tag, .theme-contacted .room-tag {
-            background: rgba(255,255,255,0.8);
-            color: #000;
-            border: 1px solid rgba(0,0,0,0.2);
+        /* ปรับสีป้ายห้องบนพื้นสด */
+        .theme-sheet-green .room-tag, .theme-sheet-pink .room-tag, .theme-sheet-yellow .room-tag {
+            background: rgba(0,0,0,0.8); color: #fff; border: none;
         }
 
-        /* Animation */
         .spin-slow { animation: spin 2s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
@@ -217,7 +203,7 @@
             const container = document.getElementById('contentArea');
             container.innerHTML = '';
             
-            // เปิดใช้บรรทัดล่างเพื่อซ่อนคิวเก่า
+            // กรองคิวที่จบไปแล้ว (บรรทัดนี้คือ Logic 1 ชั่วโมง)
             const activeData = data.filter(d => !isJobFinished(d.time)); 
             // const activeData = data; 
 
@@ -241,55 +227,57 @@
                 `;
 
                 items.forEach(item => {
-                    const txt = (item.treatment || '') + " " + (item.patient || '');
                     let themeClass = 'theme-normal';
                     let patientName = item.patient;
                     let descHtml = '';
+                    
+                    // --- 1. Logic ตรวจสอบสีพื้นหลัง (Hex Code) ---
+                    // Google Sheet มักส่งรหัสสีมาแบบ #ffff00, #00ff00, #ff00ff (ตัวพิมพ์เล็ก/ใหญ่)
+                    const bg = (item.bgColor || "").toLowerCase();
 
-                    // --- Logic ตรวจสอบ Keyword เพื่อเปลี่ยนสีการ์ด ---
+                    // เช็คว่าเป็น "สีเขียว" หรือไม่ (รวมหลายเฉดเขียว)
+                    if (bg === '#00ff00' || bg === '#lime') {
+                         themeClass = 'theme-sheet-green';
+                         descHtml = `<div class="font-bold"><i class="fas fa-user-check"></i> คนไข้มาแล้ว (Sheet)</div>`;
                     
-                    if (item.status === 'available') {
-                        themeClass = 'theme-free';
-                        patientName = `<span class="font-bold"><i class="fas fa-check"></i> ว่าง</span>`;
-                        descHtml = `<div class="opacity-75">พร้อมรับงาน</div>`;
+                    // เช็คว่าเป็น "สีชมพู/บานเย็น" หรือไม่
+                    } else if (bg === '#ff00ff' || bg === '#magenta' || bg === '#ea4335') {
+                         themeClass = 'theme-sheet-pink';
+                         descHtml = `<div class="font-bold"><i class="fas fa-phone-volume"></i> โทรแจ้งแล้ว (Sheet)</div>`;
                     
-                    } else if (item.status === 'cancelled' || item.cancelled || txt.includes('ผิดนัด')) {
-                        themeClass = 'theme-missed';
-                        patientName = `<span class="line-through opacity-75">${item.patient}</span>`;
-                        descHtml = `<div class="font-bold text-slate-300">ผิดนัด / ยกเลิก</div>`;
-                    
-                    } else if (txt.includes('มาแล้ว') || txt.includes('คนไข้มา')) {
-                        themeClass = 'theme-arrived'; // สีเขียว
-                        descHtml = `<div class="font-bold"><i class="fas fa-user-check"></i> คนไข้มาแล้ว</div>`;
-                    
-                    } else if (txt.includes('โทรแจ้ง')) {
-                        themeClass = 'theme-contacted'; // สีชมพู
-                        descHtml = `<div class="font-bold"><i class="fas fa-phone-volume"></i> โทรแจ้งแล้ว</div>`;
-                    
-                    } else if (txt.includes('ติดต่อไม่ได้')) {
-                        themeClass = 'theme-unreachable'; // สีเหลือง
-                        descHtml = `<div class="font-bold"><i class="fas fa-exclamation-triangle"></i> ติดต่อไม่ได้</div>`;
+                    // เช็คว่าเป็น "สีเหลือง" หรือไม่
+                    } else if (bg === '#ffff00' || bg === '#yellow') {
+                         themeClass = 'theme-sheet-yellow';
+                         descHtml = `<div class="font-bold"><i class="fas fa-exclamation-triangle"></i> ติดต่อไม่ได้ (Sheet)</div>`;
                     
                     } else {
-                        // --- กรณีปกติ (ไม่เข้าเงื่อนไขสถานะพิเศษ) ---
-                        // เช็คประเภทนวดเพื่อใส่ป้ายสี (Badge)
-                        let badge = '';
-                        if (txt.includes('นวดส่งเสริม')) badge = `<span class="badge-base badge-blue">นวดส่งเสริม</span>`;
-                        else if (txt.includes('นวดรักษา')) badge = `<span class="badge-base badge-cyan">นวดรักษา</span>`;
-                        else badge = `<span class="text-slate-400">${item.treatment.replace('จอง','').trim()}</span>`;
+                        // --- 2. Fallback Logic (ถ้า Sheet ไม่ได้เทสี ให้ใช้สถานะปกติ) ---
+                        if (item.status === 'available') {
+                            themeClass = 'theme-free';
+                            patientName = `<span class="font-bold"><i class="fas fa-check"></i> ว่าง</span>`;
+                            descHtml = `<div class="opacity-75">พร้อมรับงาน</div>`;
                         
-                        // เช็คจอง
-                        if (txt.includes('จอง')) badge = `<span class="text-orange-400 font-bold border border-orange-400 rounded px-1 mr-1">จอง</span>` + badge;
-                        
-                        descHtml = `<div>${badge}</div>`;
+                        } else if (item.status === 'cancelled') {
+                            themeClass = 'theme-cancel';
+                            patientName = `<span class="line-through opacity-75">${item.patient}</span>`;
+                            descHtml = `<div class="font-bold text-slate-300">ยกเลิก/ผิดนัด</div>`;
+                        } else {
+                            // การ์ดปกติ (ดู keyword นวดรักษา/ส่งเสริม)
+                            let badge = '';
+                            if ((item.treatment||'').includes('นวดส่งเสริม')) badge = `<span class="badge-base badge-blue">นวดส่งเสริม</span>`;
+                            else if ((item.treatment||'').includes('นวดรักษา')) badge = `<span class="badge-base badge-cyan">นวดรักษา</span>`;
+                            else badge = `<span class="text-slate-400">${(item.treatment||'').replace('จอง','').trim()}</span>`;
+                            
+                            if ((item.treatment||'').includes('จอง')) badge = `<span class="text-orange-400 font-bold border border-orange-400 rounded px-1 mr-1">จอง</span>` + badge;
+                            descHtml = `<div>${badge}</div>`;
+                        }
                     }
 
-                    // ปุ่มโทร (ปรับสีตาม Theme)
+                    // ปุ่มโทร
                     const telBtn = (item.tel && item.status !== 'available') 
-                        ? `<a href="tel:${item.tel}" class="w-9 h-9 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition shadow"><i class="fas fa-phone"></i></a>` 
+                        ? `<a href="tel:${item.tel}" class="w-9 h-9 rounded-full bg-white/30 hover:bg-white/50 flex items-center justify-center transition shadow text-black"><i class="fas fa-phone"></i></a>` 
                         : '';
 
-                    // เลขห้อง
                     const roomBadge = item.room 
                         ? `<div class="mt-2 text-right"><span class="room-tag">${item.room}</span></div>` 
                         : '';
