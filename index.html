@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sadao Queue V27 (Edit Mode)</title>
+    <title>Sadao Queue V28 (Dropdown Edit)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
@@ -60,7 +60,7 @@
 
         /* Input Style for Edit Modal */
         .input-group label { display: block; color: #94a3b8; font-size: 0.9rem; margin-bottom: 4px; }
-        .input-group input { width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 10px; border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+        .input-group input, .input-group select { width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 10px; border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.2s; }
         .input-group input:focus { border-color: #22d3ee; }
         .save-btn { width: 100%; background: linear-gradient(90deg, #06b6d4, #3b82f6); color: white; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 1.1rem; margin-top: 10px; box-shadow: 0 4px 10px rgba(6, 182, 212, 0.3); }
         .save-btn:active { transform: translateY(2px); }
@@ -127,10 +127,17 @@
                     <label>เบอร์โทร (แถว 2)</label>
                     <input type="text" id="edit-val2" placeholder="ระบุเบอร์โทร">
                 </div>
+                
                 <div class="input-group">
                     <label>รายการรักษา (แถว 3)</label>
-                    <input type="text" id="edit-val3" placeholder="เช่น นวดรักษา, จอง">
+                    <input type="text" id="edit-val3" list="treatment-options" placeholder="เลือกรายการ หรือพิมพ์เอง...">
+                    <datalist id="treatment-options">
+                        <option value="นวดตัวส่งเสริม">
+                        <option value="นวดรักษา">
+                        <option value="จอง">
+                    </datalist>
                 </div>
+
                 <div class="input-group">
                     <label>หมายเหตุ (แถว 4)</label>
                     <input type="text" id="edit-val4" placeholder="เช่น อาการ, รถเสีย">
@@ -168,7 +175,6 @@
             finally { if(refreshIcon) refreshIcon.classList.remove('spin-slow'); }
         }
 
-        // --- Logic: เปลี่ยนสถานะสี ---
         async function changeStatus(colorCode) {
             if (!selectedCard) return;
             const targetId = selectedCard.id; 
@@ -180,12 +186,11 @@
                 row: selectedCard.sheetRow,
                 col: selectedCard.sheetCol,
                 color: colorCode,
-                mode: 'status' // บอก Backend ว่านี่คือการเปลี่ยนสี
+                mode: 'status'
             };
 
             closeModal('statusModal');
             
-            // Animation เปลี่ยนสีทันที
             if(cardEl) {
                 cardEl.classList.remove('theme-sheet-green', 'theme-sheet-pink', 'theme-sheet-yellow', 'theme-sheet-red', 'theme-normal', 'theme-cancel');
                 if(colorCode === '#00ff00') cardEl.classList.add('theme-sheet-green');
@@ -207,14 +212,12 @@
             }
         }
 
-        // --- Logic: บันทึกข้อมูลแก้ไข (NEW) ---
         async function saveEditData() {
             if (!selectedCard) return;
             const targetId = selectedCard.id;
             const editBtn = document.getElementById(`edit-btn-${targetId}`);
             const cardEl = document.getElementById(`card-${targetId}`);
 
-            // รับค่าจากฟอร์ม
             const val1 = document.getElementById('edit-val1').value;
             const val2 = document.getElementById('edit-val2').value;
             const val3 = document.getElementById('edit-val3').value;
@@ -224,7 +227,7 @@
                 date: selectedCard.sheetDate,
                 row: selectedCard.sheetRow,
                 col: selectedCard.sheetCol,
-                mode: 'edit_data', // บอก Backend ว่านี่คือการแก้ข้อมูล
+                mode: 'edit_data',
                 val1: val1,
                 val2: val2,
                 val3: val3,
@@ -232,12 +235,12 @@
             };
 
             closeModal('editModal');
-            if(cardEl) cardEl.classList.add('card-loading'); // หมุนรอ
+            if(cardEl) cardEl.classList.add('card-loading');
             if(editBtn) editBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
             try {
                 await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                setTimeout(() => fetchData(false), 2000); // รีโหลดข้อมูลใหม่
+                setTimeout(() => fetchData(false), 2000);
             } catch (e) {
                 alert('บันทึกไม่สำเร็จ');
                 if(cardEl) cardEl.classList.remove('card-loading');
@@ -245,7 +248,6 @@
             }
         }
 
-        // --- UI Modal Functions ---
         function openStatusModal(cardDataJson) {
             selectedCard = JSON.parse(decodeURIComponent(cardDataJson));
             document.getElementById('statusModal').classList.add('active');
@@ -253,12 +255,10 @@
 
         function openEditModal(cardDataJson) {
             selectedCard = JSON.parse(decodeURIComponent(cardDataJson));
-            // เอาข้อมูลเดิมมาใส่ในช่อง Input
             document.getElementById('edit-val1').value = selectedCard.rawVal1 || "";
             document.getElementById('edit-val2').value = selectedCard.rawVal2 || "";
             document.getElementById('edit-val3').value = selectedCard.rawVal3 || "";
             document.getElementById('edit-val4').value = selectedCard.rawVal4 || "";
-            
             document.getElementById('editModal').classList.add('active');
         }
 
@@ -267,8 +267,7 @@
             selectedCard = null;
         }
 
-        // --- Standard Logic (Filter, Render) ---
-        function setupFilter(data) { /* Same as before */ 
+        function setupFilter(data) {
             const select = document.getElementById('staffFilter');
             const current = select.value;
             const staffSet = new Set(data.map(d => d.staff));
@@ -361,7 +360,6 @@
                     
                     const itemDataStr = encodeURIComponent(JSON.stringify(item));
                     
-                    // ★★★ ปุ่มควบคุม (Settings & Edit) ★★★
                     const settingBtn = `<button id="setting-btn-${item.id}" onclick="openStatusModal('${itemDataStr}')" class="icon-btn ml-2 hover:bg-white/20"><i class="fas fa-cog"></i></button>`;
                     const editBtn = `<button id="edit-btn-${item.id}" onclick="openEditModal('${itemDataStr}')" class="icon-btn ml-2 hover:bg-white/20"><i class="fas fa-pen text-sm"></i></button>`;
 
@@ -375,7 +373,9 @@
                                         <div class="staff-name flex-1 pr-2"><i class="fas fa-user-md mr-1 opacity-50 text-base"></i>${item.staff}</div>
                                         <div class="flex items-center">
                                             ${telBtn}
-                                            ${editBtn} ${settingBtn} </div>
+                                            ${editBtn}
+                                            ${settingBtn}
+                                        </div>
                                     </div>
                                     <div class="patient-name-container justify-between border-t border-white/10 pt-1">
                                         <div class="patient-text w-full">${patientName}</div>
