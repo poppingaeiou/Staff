@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sadao Queue V16</title>
+    <title>Sadao Queue V17</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
@@ -57,6 +57,24 @@
         .room-tag { font-family: 'Rajdhani', sans-serif; background: #422006; color: #facc15; border: 1px solid #ca8a04; padding: 1px 6px; border-radius: 4px; font-size: 0.9rem; font-weight: 700; }
         .theme-sheet-green .room-tag, .theme-sheet-pink .room-tag { background: rgba(0,0,0,0.5); color: #fff; border: none; }
         .theme-sheet-yellow .room-tag { background: rgba(0,0,0,0.6); color: #fff; border: none; }
+
+        /* สไตล์พิเศษสำหรับคนยกเลิก (ในส่วน Detail) */
+        .detail-cancelled {
+            font-size: 0.8rem;
+            color: #ef4444; /* สีแดง */
+            text-decoration: line-through;
+            font-weight: 600;
+            margin-top: 2px;
+            display: block;
+        }
+        /* ถ้าอยู่บนพื้นสีสด ให้เป็นสีขาวขีดฆ่า */
+        .theme-sheet-green .detail-cancelled, 
+        .theme-sheet-pink .detail-cancelled, 
+        .theme-sheet-yellow .detail-cancelled {
+            color: rgba(255,255,255,0.8);
+            border-color: rgba(255,255,255,0.8);
+        }
+        .theme-sheet-yellow .detail-cancelled { color: rgba(66, 32, 6, 0.7); }
 
         .spin-slow { animation: spin 2s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
@@ -178,22 +196,41 @@
                         descHtml = `<div class="opacity-60 text-xs">พร้อมรับงาน</div>`;
                     
                     } else if (item.status === 'cancelled') {
+                        // กรณีที่ไม่มีคนไข้ในแถว 1 เลย และมีข้อมูลในแถว 4
                         themeClass = 'theme-cancel';
                         patientName = `<span class="line-through opacity-50">${item.patient}</span>`;
-                        descHtml = `<div class="font-bold text-slate-400 text-xs">ยกเลิก/หมายเหตุ</div>`;
+                        descHtml = `<div class="font-bold text-slate-400 text-xs">ยกเลิก/ผิดนัด</div>`;
                     } else {
-                        let txt = item.treatment || '';
+                        // --- กรณี Busy (มีคนไข้) ---
+                        let txtTreatment = item.treatment || '';
+                        let txtRemarks = item.remarks || ''; // ข้อความจากแถว 4
+
                         let badge = '';
                         const badgeStyle = isSheetColor ? 'badge-base badge-on-color' : 'badge-base';
                         const blueStyle = isSheetColor ? 'badge-base badge-on-color' : 'badge-base badge-blue';
                         const cyanStyle = isSheetColor ? 'badge-base badge-on-color' : 'badge-base badge-cyan';
 
-                        if (txt.includes('นวดส่งเสริม')) badge = `<span class="${blueStyle}">นวดส่งเสริม</span>`;
-                        else if (txt.includes('นวดรักษา')) badge = `<span class="${cyanStyle}">นวดรักษา</span>`;
-                        else badge = `<span class="text-desc ${isSheetColor ? 'text-white/80' : ''}">${txt.replace('จอง','').trim()}</span>`;
+                        // 1. จัดการ Treatment (แถว 3) - บรรทัดบน
+                        if (txtTreatment.includes('นวดส่งเสริม')) badge = `<span class="${blueStyle}">นวดส่งเสริม</span>`;
+                        else if (txtTreatment.includes('นวดรักษา')) badge = `<span class="${cyanStyle}">นวดรักษา</span>`;
+                        else badge = `<span class="text-desc ${isSheetColor ? 'text-white/80' : ''}">${txtTreatment.replace('จอง','').trim()}</span>`;
                         
-                        if (txt.includes('จอง')) badge = `<span class="badge-booking">จอง</span>` + badge;
-                        descHtml = `<div>${badge || '&nbsp;'}</div>`;
+                        if (txtTreatment.includes('จอง')) badge = `<span class="badge-booking">จอง</span>` + badge;
+                        
+                        // 2. จัดการ Remarks (แถว 4) - บรรทัดล่าง
+                        let remarksHtml = '';
+                        if (txtRemarks !== '') {
+                            if (item.isRemarkStrike) {
+                                // ถ้ามีขีดฆ่า ให้แสดงเป็น "คนยกเลิก"
+                                remarksHtml = `<span class="detail-cancelled" title="คนไข้ยกเลิก"><i class="fas fa-user-times mr-1"></i>${txtRemarks}</span>`;
+                            } else {
+                                // ถ้าไม่มีขีดฆ่า แสดงเป็นหมายเหตุปกติ
+                                remarksHtml = `<div class="text-xs opacity-75 mt-1"><i class="fas fa-info-circle mr-1"></i>${txtRemarks}</div>`;
+                            }
+                        }
+
+                        // รวมร่าง
+                        descHtml = `<div>${badge || '&nbsp;'}</div>${remarksHtml}`;
                     }
 
                     const telBtn = (item.tel && item.status !== 'available' && item.status !== 'cancelled') 
