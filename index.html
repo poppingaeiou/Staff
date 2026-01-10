@@ -3,74 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sadao Hospital - คิวงานผู้ช่วยแพทย์แผนไทย</title>
+    <title>Sadao Hospital - Smart Queue HUD</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        body { font-family: 'Prompt', sans-serif; background-color: #f3f4f6; }
-        .timeline-line { position: absolute; left: 18px; top: 0; bottom: 0; width: 2px; background: #e5e7eb; z-index: 0; }
-        .time-dot { width: 40px; height: 40px; background: #0d9488; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; position: relative; z-index: 10; border: 4px solid #f3f4f6; }
-        .card-shadow { box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        /* --- Custom Scrollbar --- */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+        /* --- Tech Effects --- */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .neon-border {
+            border-left: 3px solid #06b6d4; /* Cyan */
+            box-shadow: -5px 0 15px -5px rgba(6, 182, 212, 0.5);
+        }
+
+        .neon-text-cyan {
+            color: #22d3ee;
+            text-shadow: 0 0 5px rgba(34, 211, 238, 0.6);
+        }
+
+        .neon-text-orange {
+            color: #fb923c;
+            text-shadow: 0 0 8px rgba(251, 146, 60, 0.8);
+        }
+
+        .room-plate {
+            font-family: 'Rajdhani', sans-serif; /* Tech Font */
+            background: #000;
+            border: 1px solid #334155;
+            color: #10b981; /* Matrix Green */
+            text-shadow: 0 0 5px #10b981;
+            letter-spacing: 1px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 24px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #06b6d4, #8b5cf6, transparent);
+            z-index: 0;
+            opacity: 0.5;
+        }
+
+        .time-node {
+            background: #0f172a;
+            border: 2px solid #06b6d4;
+            box-shadow: 0 0 10px #06b6d4;
+        }
+
+        /* Animation */
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .scan-overlay {
+            position: fixed; top:0; left:0; right:0; bottom:0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.1) 51%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.3;
+        }
     </style>
 </head>
 <body class="pb-20">
 
-    <header class="bg-teal-700 text-white p-4 sticky top-0 z-50 shadow-lg">
-        <div class="container mx-auto flex justify-between items-center max-w-3xl">
-            <h1 class="text-lg font-bold"><i class="fas fa-spa"></i> คิวงานผู้ช่วยฯ</h1>
-            <div class="text-right">
-                <p id="dateDisplay" class="text-xs text-teal-200">Loading...</p>
-                <button onclick="fetchData()" class="text-white text-sm underline"><i class="fas fa-sync-alt"></i> รีเฟรช</button>
+    <div class="scan-overlay"></div>
+
+    <header class="glass-panel sticky top-0 z-50 border-b border-slate-700">
+        <div class="container mx-auto p-4 flex justify-between items-center max-w-4xl">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded bg-cyan-900/50 flex items-center justify-center border border-cyan-500/30">
+                    <i class="fas fa-dna text-cyan-400 text-xl animate-pulse"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide text-white">SADAO <span class="text-cyan-400">SYSTEM</span></h1>
+                    <p id="dateDisplay" class="text-xs text-slate-400 font-mono">INITIALIZING...</p>
+                </div>
             </div>
+            <button onclick="fetchData()" class="w-10 h-10 rounded-full bg-slate-800 hover:bg-cyan-900 text-cyan-400 transition flex items-center justify-center shadow-[0_0_10px_rgba(6,182,212,0.3)]">
+                <i class="fas fa-sync-alt" id="refreshIcon"></i>
+            </button>
         </div>
     </header>
 
-    <div class="container mx-auto px-4 mt-4 max-w-3xl">
-        <select id="staffFilter" onchange="filterData()" class="w-full p-2 border rounded-lg text-sm bg-white">
-            <option value="all">แสดงงานทั้งหมด (ทุกคน)</option>
-        </select>
+    <div class="container mx-auto px-4 mt-6 max-w-4xl">
+        <div class="relative group">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-lg blur opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
+            <select id="staffFilter" onchange="filterData()" class="relative w-full p-3 bg-slate-900 text-slate-200 border border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500 font-medium">
+                <option value="all">⚡ ACCESS ALL UNITS (แสดงงานทั้งหมด)</option>
+            </select>
+        </div>
     </div>
 
-    <div id="timelineContainer" class="container mx-auto px-4 mt-6 max-w-3xl relative">
+    <div id="timelineContainer" class="container mx-auto px-4 mt-8 max-w-4xl relative min-h-[500px]">
         <div class="timeline-line"></div>
-        <div id="contentArea"></div>
+        <div id="contentArea" class="space-y-8 pb-10">
+            </div>
+    </div>
+
+    <div id="loading" class="text-center py-20 hidden">
+        <div class="inline-block w-16 h-16 border-4 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin"></div>
+        <p class="mt-4 text-cyan-400 font-mono tracking-widest text-sm animate-pulse">CONNECTING TO DATABASE...</p>
     </div>
 
     <script>
-        // ⚠️ ใส่ URL ใหม่ที่ Deploy แล้วตรงนี้
+        // ⚠️ ลิงก์ Script ของคุณ
         const API_URL = "https://script.google.com/macros/s/AKfycbzGmp_5CoVDXRugHW8DOFHes4QI9p-Ho5J5th6hjrCd3U-fTFSkW9X84gRN_xo8au3UQg/exec";
 
         let allData = [];
-        let groupedData = {};
 
         document.addEventListener('DOMContentLoaded', fetchData);
 
         async function fetchData() {
-            document.getElementById('contentArea').innerHTML = '<p class="pl-12 text-gray-400">กำลังโหลด...</p>';
+            showLoading(true);
+            const refreshIcon = document.getElementById('refreshIcon');
+            refreshIcon.classList.add('fa-spin');
+
             try {
                 const res = await fetch(API_URL);
                 const json = await res.json();
+                
                 if(json.status === 'success') {
                     allData = json.data;
-                    document.getElementById('dateDisplay').innerText = `วันที่ ${json.date}`;
+                    // แสดงวันที่แบบ Tech Style
+                    document.getElementById('dateDisplay').innerHTML = `DATE: <span class="text-cyan-300">${json.date}</span> | STATUS: <span class="text-green-400">ONLINE</span>`;
+                    
                     setupFilter(allData);
                     renderTimeline(allData);
                 } else {
-                    alert('Error: ' + json.message);
+                    alert('SYSTEM ERROR: ' + json.message);
                 }
-            } catch(e) { alert('เชื่อมต่อไม่ได้'); }
+            } catch(e) { 
+                console.error(e);
+                document.getElementById('dateDisplay').innerHTML = `<span class="text-red-500">CONNECTION FAILED</span>`;
+            } finally {
+                showLoading(false);
+                refreshIcon.classList.remove('fa-spin');
+            }
         }
 
         function setupFilter(data) {
             const select = document.getElementById('staffFilter');
+            const current = select.value;
             const staffSet = new Set(data.map(d => d.staff));
-            staffSet.forEach(s => {
+            
+            // Clear but keep first option
+            while (select.options.length > 1) select.remove(1);
+
+            Array.from(staffSet).sort().forEach(s => {
                 const opt = document.createElement('option');
                 opt.value = s;
-                opt.text = `ดูงานของ: ${s}`;
+                opt.text = `📡 UNIT: ${s}`;
                 select.add(opt);
             });
+            select.value = current;
         }
 
         function filterData() {
@@ -83,55 +202,123 @@
             const container = document.getElementById('contentArea');
             container.innerHTML = '';
 
-            // Group data by Time
+            if(data.length === 0) {
+                container.innerHTML = `
+                    <div class="ml-12 p-6 rounded-lg border border-dashed border-slate-700 text-slate-500 font-mono">
+                        NO DATA FOUND // STANDBY MODE
+                    </div>`;
+                return;
+            }
+
+            // Group by Time
             const groups = data.reduce((acc, item) => {
                 if(!acc[item.time]) acc[item.time] = [];
                 acc[item.time].push(item);
                 return acc;
             }, {});
 
-            // Sort times
             const times = Object.keys(groups).sort();
 
             times.forEach(time => {
                 const items = groups[time];
                 
-                // HTML สำหรับ 1 ช่วงเวลา (Time Block)
+                // HTML Layout Header (Time)
                 let html = `
-                    <div class="flex items-start mb-8 relative">
-                        <div class="flex-shrink-0 w-12 flex justify-center">
-                            <div class="time-dot shadow-md">
+                    <div class="relative pl-12 fade-in">
+                        <div class="absolute left-[8px] top-0 flex flex-col items-center">
+                            <div class="time-node w-8 h-8 rounded-full flex items-center justify-center z-10">
+                                <div class="w-2 h-2 bg-cyan-400 rounded-full animate-ping"></div>
+                            </div>
+                            <div class="mt-2 text-cyan-400 font-mono font-bold text-lg tracking-wider" style="writing-mode: vertical-rl; text-orientation: mixed;">
                                 ${time}
                             </div>
                         </div>
-                        
-                        <div class="flex-grow pl-4 space-y-3">
+
+                        <div class="space-y-4">
                 `;
 
                 items.forEach(item => {
+                    // Logic สีและการตกแต่ง
+                    const isBooking = item.treatment && item.treatment.includes('จอง');
                     const isCancel = item.status === 'cancelled_slot';
-                    const bg = isCancel ? 'bg-gray-100 border-gray-300' : 'bg-white border-teal-500';
-                    const badgeColor = item.room ? 'bg-purple-100 text-purple-700' : 'hidden';
+                    
+                    // พื้นหลังการ์ด
+                    let cardClass = "glass-panel rounded-xl p-4 relative overflow-hidden group transition hover:scale-[1.01] duration-300 ";
+                    cardClass += isCancel ? "opacity-60 grayscale border-slate-700" : "neon-border";
+
+                    // การตกแต่งข้อความ
+                    const staffColor = "text-slate-400 uppercase text-xs font-bold tracking-widest mb-1";
+                    const patientClass = isCancel 
+                        ? "text-slate-500 line-through text-lg" 
+                        : "text-white font-semibold text-xl tracking-wide";
+                    
+                    // จัดการคำว่า "จอง" ให้เป็นสีส้ม Neon
+                    let treatmentDisplay = item.treatment || '-';
+                    if (isBooking && !isCancel) {
+                        treatmentDisplay = `<span class="neon-text-orange font-bold"><i class="fas fa-bookmark mr-1"></i>${treatmentDisplay}</span>`;
+                    } else {
+                        treatmentDisplay = `<span class="text-slate-300">${treatmentDisplay}</span>`;
+                    }
+
+                    // ป้ายห้อง (Digital Plate)
+                    const roomBadge = item.room 
+                        ? `<div class="room-plate"><i class="fas fa-cube text-[10px]"></i> ${item.room}</div>` 
+                        : '';
+
+                    // ปุ่มโทร (Holo Button)
+                    const telBtn = item.tel && !isCancel
+                        ? `<a href="tel:${item.tel}" class="w-10 h-10 rounded-full bg-slate-800 border border-slate-600 text-green-400 flex items-center justify-center hover:bg-green-900 hover:border-green-500 transition shadow-[0_0_10px_rgba(74,222,128,0.2)]">
+                             <i class="fas fa-phone"></i>
+                           </a>`
+                        : '';
 
                     html += `
-                        <div class="${bg} border-l-4 p-3 rounded-lg card-shadow relative">
-                            <div class="flex justify-between">
-                                <span class="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded">${item.staff}</span>
-                                <span class="${badgeColor} text-xs px-2 py-0.5 rounded font-bold">ห้อง ${item.room}</span>
+                        <div class="${cardClass}">
+                            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 pointer-events-none"></div>
+
+                            <div class="flex justify-between items-start relative z-10">
+                                <div class="w-full">
+                                    <div class="${staffColor}">
+                                        <i class="fas fa-user-astronaut mr-1"></i> ${item.staff}
+                                    </div>
+
+                                    <div class="${patientClass}">
+                                        ${item.patient}
+                                    </div>
+
+                                    <div class="flex flex-wrap items-end justify-between mt-3 gap-2">
+                                        <div class="flex flex-col gap-1">
+                                            <div class="text-sm">
+                                                ${treatmentDisplay}
+                                            </div>
+                                            <div>${roomBadge}</div>
+                                            
+                                            ${item.cancelled ? `<div class="text-red-400 text-xs mt-1 font-mono">[LOG: ยกเลิก ${item.cancelled}]</div>` : ''}
+                                        </div>
+
+                                        ${telBtn}
+                                    </div>
+                                </div>
                             </div>
-                            <h3 class="font-bold text-gray-800 mt-1">${item.patient}</h3>
-                            <p class="text-sm text-teal-600">${item.treatment || ''}</p>
-                            ${item.cancelled ? `<p class="text-xs text-red-400 mt-1 border-t pt-1">ยกเลิก: <strike>${item.cancelled}</strike></p>` : ''}
-                            ${item.tel && !isCancel ? `<a href="tel:${item.tel}" class="absolute bottom-2 right-2 text-green-500 bg-green-50 p-2 rounded-full"><i class="fas fa-phone"></i></a>` : ''}
                         </div>
                     `;
                 });
 
-                html += `</div></div>`; // ปิด div
+                html += `</div></div>`; // Close wrapper
                 container.innerHTML += html;
             });
+        }
 
-            if(data.length === 0) container.innerHTML = '<p class="pl-12 text-gray-400">ไม่มีคิวงาน</p>';
+        function showLoading(show) {
+            const el = document.getElementById('loading');
+            const content = document.getElementById('contentArea');
+            if(show) {
+                el.classList.remove('hidden');
+                content.classList.add('hidden');
+            } else {
+                el.classList.add('hidden');
+                content.classList.remove('hidden');
+            }
         }
     </script>
 </body>
