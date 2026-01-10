@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sadao Queue V10 (Color Sync)</title>
+    <title>Sadao Queue V11 (Final Color & Content)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
@@ -32,7 +32,7 @@
             gap: 10px;
         }
 
-        /* Card Base */
+        /* Card Structure */
         .queue-card {
             border-radius: 12px;
             padding: 14px;
@@ -46,37 +46,39 @@
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* --- THEMES (ตามสี Google Sheet) --- */
+        /* --- THEMES (Background Colors) --- */
         
-        /* Default */
+        /* Default Dark Theme */
         .theme-normal { background: #1e293b; color: #f1f5f9; border-left: 6px solid #64748b; }
+        
+        /* Free Slot */
         .theme-free { background: rgba(20, 83, 45, 0.3); border: 1px solid #22c55e; border-left: 6px solid #22c55e; color: #dcfce7; }
+        
+        /* Cancelled */
         .theme-cancel { background: #475569; color: #cbd5e1; border-left: 6px solid #94a3b8; }
 
-        /* สีสดจาก Sheet (ตัวหนังสือต้องเข้มถึงจะอ่านออก) */
+        /* --- SHEET COLORS (สีสด) --- */
+        /* ข้อความต้องเป็นสีเข้ม (Dark Text) เพื่อให้อ่านออกบนพื้นสีสว่าง */
         
         /* สีเขียว (คนไข้มาแล้ว) */
         .theme-sheet-green {
-            background: #00ff00; /* เขียวสด */
             background: linear-gradient(135deg, #00ff00 0%, #4ade80 100%);
-            color: #064e3b; /* ตัวหนังสือเขียวเข้มเกือบดำ */
+            color: #064e3b; 
             border: none;
             box-shadow: 0 0 15px rgba(74, 222, 128, 0.6);
         }
 
         /* สีชมพู (โทรแจ้งแล้ว) */
         .theme-sheet-pink {
-            background: #ff00ff; /* ชมพูสด */
             background: linear-gradient(135deg, #ff00ff 0%, #e879f9 100%);
-            color: #701a75; /* ตัวหนังสือม่วงเข้ม */
+            color: #701a75;
             border: none;
         }
 
         /* สีเหลือง (ติดต่อไม่ได้) */
         .theme-sheet-yellow {
-            background: #ffff00; /* เหลืองสด */
             background: linear-gradient(135deg, #ffff00 0%, #facc15 100%);
-            color: #451a03; /* ตัวหนังสือสีน้ำตาลเข้ม */
+            color: #451a03;
             border: none;
         }
 
@@ -88,20 +90,40 @@
             line-height: 1.1;
         }
 
-        /* Badges */
+        /* --- BADGES (ป้ายรายละเอียด) --- */
         .badge-base { padding: 2px 8px; border-radius: 4px; font-size: 0.9rem; font-weight: 600; display: inline-block; margin-top: 4px; }
-        .badge-blue { background: #172554; color: #93c5fd; border: 1px solid #3b82f6; } 
-        .badge-cyan { background: #083344; color: #67e8f9; border: 1px solid #06b6d4; }
         
-        /* ปรับสี Badge เมื่ออยู่บนพื้นหลังสีสด */
+        /* Badge บนพื้นมืด (ปกติ) */
+        .theme-normal .badge-blue { background: #172554; color: #93c5fd; border: 1px solid #3b82f6; } 
+        .theme-normal .badge-cyan { background: #083344; color: #67e8f9; border: 1px solid #06b6d4; }
+        .theme-normal .text-desc { color: #cbd5e1; }
+
+        /* Badge บนพื้นสีสด (ต้องปรับให้จางลงเพื่อให้เข้ากับพื้นหลัง) */
         .theme-sheet-green .badge-base, 
         .theme-sheet-pink .badge-base, 
         .theme-sheet-yellow .badge-base {
-            background: rgba(255,255,255,0.6);
+            background: rgba(255,255,255,0.5); /* พื้นหลังขาวจางๆ */
             border: 1px solid rgba(0,0,0,0.1);
-            color: #000;
+            color: #000; /* ตัวหนังสือดำ */
+        }
+        
+        /* Badge คำว่า "จอง" */
+        .badge-booking {
+            font-weight: 800;
+            border: 1px solid #fb923c;
+            padding: 1px 6px;
+            border-radius: 4px;
+            margin-right: 5px;
+            color: #fb923c;
+        }
+        /* จอง บนพื้นสีสด ให้เปลี่ยนสีให้ชัดขึ้น */
+        .theme-sheet-green .badge-booking, .theme-sheet-pink .badge-booking, .theme-sheet-yellow .badge-booking {
+            color: #c2410c; /* สีส้มอิฐเข้ม */
+            border-color: #c2410c;
+            background: rgba(255,255,255,0.3);
         }
 
+        /* Room Tag */
         .room-tag {
             font-family: 'Rajdhani', sans-serif;
             background: #422006; color: #facc15;
@@ -109,9 +131,9 @@
             padding: 2px 8px; border-radius: 4px;
             font-size: 1rem; font-weight: 700;
         }
-        /* ปรับสีป้ายห้องบนพื้นสด */
+        /* Room Tag บนพื้นสีสด */
         .theme-sheet-green .room-tag, .theme-sheet-pink .room-tag, .theme-sheet-yellow .room-tag {
-            background: rgba(0,0,0,0.8); color: #fff; border: none;
+            background: rgba(0,0,0,0.7); color: #fff; border: none;
         }
 
         .spin-slow { animation: spin 2s linear infinite; }
@@ -146,6 +168,7 @@
     <div id="contentArea" class="container mx-auto px-4 mt-6 max-w-5xl space-y-8"></div>
 
     <script>
+        // ⚠️ ใส่ URL Web App เดิมของคุณได้เลยครับ
         const API_URL = "https://script.google.com/macros/s/AKfycbzGmp_5CoVDXRugHW8DOFHes4QI9p-Ho5J5th6hjrCd3U-fTFSkW9X84gRN_xo8au3UQg/exec";
 
         let allData = [];
@@ -203,9 +226,8 @@
             const container = document.getElementById('contentArea');
             container.innerHTML = '';
             
-            // กรองคิวที่จบไปแล้ว (บรรทัดนี้คือ Logic 1 ชั่วโมง)
+            // กรองคิวที่จบไปแล้ว
             const activeData = data.filter(d => !isJobFinished(d.time)); 
-            // const activeData = data; 
 
             if(activeData.length === 0) {
                 container.innerHTML = `<div class="text-center text-slate-500 py-10">ไม่พบคิวงานในขณะนี้</div>`;
@@ -231,46 +253,55 @@
                     let patientName = item.patient;
                     let descHtml = '';
                     
-                    // --- 1. Logic ตรวจสอบสีพื้นหลัง (Hex Code) ---
-                    // Google Sheet มักส่งรหัสสีมาแบบ #ffff00, #00ff00, #ff00ff (ตัวพิมพ์เล็ก/ใหญ่)
+                    // --- 1. กำหนด Theme สีพื้นหลัง (Color Logic) ---
                     const bg = (item.bgColor || "").toLowerCase();
 
-                    // เช็คว่าเป็น "สีเขียว" หรือไม่ (รวมหลายเฉดเขียว)
+                    // เช็คสีจาก Sheet เพื่อเลือก Class พื้นหลัง
                     if (bg === '#00ff00' || bg === '#lime') {
                          themeClass = 'theme-sheet-green';
-                         descHtml = `<div class="font-bold"><i class="fas fa-user-check"></i> คนไข้มาแล้ว (Sheet)</div>`;
-                    
-                    // เช็คว่าเป็น "สีชมพู/บานเย็น" หรือไม่
                     } else if (bg === '#ff00ff' || bg === '#magenta' || bg === '#ea4335') {
                          themeClass = 'theme-sheet-pink';
-                         descHtml = `<div class="font-bold"><i class="fas fa-phone-volume"></i> โทรแจ้งแล้ว (Sheet)</div>`;
-                    
-                    // เช็คว่าเป็น "สีเหลือง" หรือไม่
                     } else if (bg === '#ffff00' || bg === '#yellow') {
                          themeClass = 'theme-sheet-yellow';
-                         descHtml = `<div class="font-bold"><i class="fas fa-exclamation-triangle"></i> ติดต่อไม่ได้ (Sheet)</div>`;
-                    
-                    } else {
-                        // --- 2. Fallback Logic (ถ้า Sheet ไม่ได้เทสี ให้ใช้สถานะปกติ) ---
-                        if (item.status === 'available') {
-                            themeClass = 'theme-free';
-                            patientName = `<span class="font-bold"><i class="fas fa-check"></i> ว่าง</span>`;
-                            descHtml = `<div class="opacity-75">พร้อมรับงาน</div>`;
+                    }
+
+                    // --- 2. กำหนดเนื้อหา (Content Logic) ---
+                    // ถ้าว่าง หรือ ยกเลิก ให้แสดงเนื้อหาเฉพาะ
+                    if (item.status === 'available') {
+                        // ถ้าว่างจริง ให้ Override theme เป็น theme-free เสมอ (หรือจะให้ใช้สี Sheet ก็ได้ แต่ปกติว่างจะไม่มีสี)
+                        if(themeClass === 'theme-normal') themeClass = 'theme-free'; 
                         
-                        } else if (item.status === 'cancelled') {
-                            themeClass = 'theme-cancel';
-                            patientName = `<span class="line-through opacity-75">${item.patient}</span>`;
-                            descHtml = `<div class="font-bold text-slate-300">ยกเลิก/ผิดนัด</div>`;
+                        patientName = `<span class="font-bold"><i class="fas fa-check"></i> ว่าง</span>`;
+                        descHtml = `<div class="opacity-75">พร้อมรับงาน</div>`;
+                    
+                    } else if (item.status === 'cancelled') {
+                        themeClass = 'theme-cancel'; // ยกเลิกให้เป็นสีเทาเสมอ
+                        patientName = `<span class="line-through opacity-75">${item.patient}</span>`;
+                        descHtml = `<div class="font-bold text-slate-300">ยกเลิก/ผิดนัด</div>`;
+
+                    } else {
+                        // *** กรณีมีนัด (แสดงรายละเอียดการรักษาแบบ V.9) ***
+                        // ไม่ว่าจะพื้นหลังสีอะไร ให้แสดงข้อความ treatment เหมือนเดิม
+                        
+                        let txt = item.treatment || '';
+                        let badge = '';
+
+                        // ใส่กรอบประเภทนวด
+                        if (txt.includes('นวดส่งเสริม')) {
+                            badge = `<span class="badge-base badge-blue">นวดส่งเสริม</span>`;
+                        } else if (txt.includes('นวดรักษา')) {
+                            badge = `<span class="badge-base badge-cyan">นวดรักษา</span>`;
                         } else {
-                            // การ์ดปกติ (ดู keyword นวดรักษา/ส่งเสริม)
-                            let badge = '';
-                            if ((item.treatment||'').includes('นวดส่งเสริม')) badge = `<span class="badge-base badge-blue">นวดส่งเสริม</span>`;
-                            else if ((item.treatment||'').includes('นวดรักษา')) badge = `<span class="badge-base badge-cyan">นวดรักษา</span>`;
-                            else badge = `<span class="text-slate-400">${(item.treatment||'').replace('จอง','').trim()}</span>`;
-                            
-                            if ((item.treatment||'').includes('จอง')) badge = `<span class="text-orange-400 font-bold border border-orange-400 rounded px-1 mr-1">จอง</span>` + badge;
-                            descHtml = `<div>${badge}</div>`;
+                             // ข้อความทั่วไป (ตัดคำว่า จอง ออกก่อนเพราะจะไปแปะข้างหน้า)
+                             badge = `<span class="text-desc">${txt.replace('จอง','').trim()}</span>`;
                         }
+                        
+                        // ใส่ป้าย "จอง" ถ้ามี
+                        if (txt.includes('จอง')) {
+                            badge = `<span class="badge-booking">จอง</span>` + badge;
+                        }
+                        
+                        descHtml = `<div>${badge}</div>`;
                     }
 
                     // ปุ่มโทร
