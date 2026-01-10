@@ -3,162 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sadao Queue V13 (Compact & Aligned)</title>
+    <title>Sadao Queue V15 (Simple Logic)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body {
-            font-family: 'Sarabun', sans-serif;
-            background-color: #0f172a;
-            color: #e2e8f0;
-            min-height: 100vh;
-        }
+        body { font-family: 'Sarabun', sans-serif; background-color: #0f172a; color: #e2e8f0; min-height: 100vh; }
 
         .time-header {
             font-family: 'Rajdhani', sans-serif;
             background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%);
             border-left: 4px solid #06b6d4;
-            color: #e2e8f0;
-            padding: 6px 14px; /* ลด Padding */
-            font-size: 1.25rem; /* ลดขนาด Font */
-            font-weight: 700;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            color: #e2e8f0; padding: 6px 14px; font-size: 1.25rem; font-weight: 700;
+            border-radius: 6px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
         }
 
-        /* --- Card Structure (Compact) --- */
         .queue-card {
-            border-radius: 10px;
-            padding: 10px 12px; /* ลด Padding ให้การ์ดเล็กลง */
-            position: relative;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            transition: all 0.2s ease;
-            
-            display: flex;
-            flex-direction: column;
-            
-            /* ไม่กำหนดความสูงตายตัว แต่ใช้ Grid ยืดเอา */
-            height: 100%; 
+            border-radius: 10px; padding: 10px 12px; position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.2s ease;
+            display: flex; flex-direction: column; height: 100%; 
             border: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* --- ส่วนสำคัญ: ล็อคความสูงชื่อคนไข้ --- */
+        /* ล็อคความสูงกล่องชื่อ */
         .patient-name-container {
-            height: 50px; /* ความสูงคงที่สำหรับชื่อคนไข้ (ประมาณ 2 บรรทัด) */
-            display: flex;
-            align-items: center; /* จัดกึ่งกลางแนวตั้งเสมอ */
-            margin-top: 4px;
-            margin-bottom: 4px;
+            height: 50px; display: flex; align-items: center; margin-top: 4px; margin-bottom: 4px;
         }
 
-        /* --- THEMES --- */
         .theme-normal { background: #1e293b; color: #f1f5f9; border-left: 4px solid #64748b; }
         .theme-free { background: rgba(20, 83, 45, 0.2); border: 1px solid #22c55e; border-left: 4px solid #22c55e; color: #dcfce7; }
         .theme-cancel { background: #334155; color: #94a3b8; border-left: 4px solid #64748b; }
 
-        /* สี Sheet (ปรับให้ดู Modern ขึ้น) */
-        .theme-sheet-green {
-            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); /* เขียวเข้มขึ้นนิดให้อ่านง่าย */
-            color: #fff; border: none;
-            box-shadow: 0 4px 6px rgba(22, 163, 74, 0.3);
-        }
-        .theme-sheet-pink {
-            background: linear-gradient(135deg, #e879f9 0%, #c026d3 100%);
-            color: #fff; border: none;
-        }
-        .theme-sheet-yellow {
-            background: linear-gradient(135deg, #facc15 0%, #ca8a04 100%);
-            color: #422006; border: none;
-        }
+        .theme-sheet-green { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #fff; border: none; box-shadow: 0 4px 6px rgba(22, 163, 74, 0.3); }
+        .theme-sheet-pink { background: linear-gradient(135deg, #e879f9 0%, #c026d3 100%); color: #fff; border: none; }
+        .theme-sheet-yellow { background: linear-gradient(135deg, #facc15 0%, #ca8a04 100%); color: #422006; border: none; }
 
-        /* ชื่อผู้ช่วย */
-        .staff-name {
-            font-size: 1.25rem; /* ลดจาก 1.6rem */
-            font-weight: 700;
-            line-height: 1.1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+        .staff-name { font-size: 1.25rem; font-weight: 700; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .patient-text { font-size: 1.1rem; font-weight: 600; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-        /* ชื่อคนไข้ */
-        .patient-text {
-            font-size: 1.1rem; /* ขนาดกำลังดี */
-            font-weight: 600;
-            line-height: 1.2;
-            display: -webkit-box;
-            -webkit-line-clamp: 2; /* ตัดคำที่บรรทัด 2 */
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        /* Badges */
         .badge-base { padding: 1px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; display: inline-block; }
-        
         .theme-normal .badge-blue { background: #172554; color: #93c5fd; border: 1px solid #3b82f6; } 
         .theme-normal .badge-cyan { background: #083344; color: #67e8f9; border: 1px solid #06b6d4; }
         .theme-normal .text-desc { color: #cbd5e1; font-size: 0.85rem; }
 
-        /* Badge บนพื้นสีสด */
-        .badge-on-color {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: #fff;
-        }
+        .badge-on-color { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: #fff; }
         .theme-sheet-yellow .badge-on-color { color: #422006; border-color: rgba(0,0,0,0.1); background: rgba(255,255,255,0.4); }
         
-        /* Booking Badge */
-        .badge-booking {
-            font-weight: 800; border: 1px solid #fb923c; padding: 0px 4px; border-radius: 3px; margin-right: 4px; color: #fb923c; font-size: 0.75rem; vertical-align: middle;
-        }
-        .theme-sheet-green .badge-booking, .theme-sheet-pink .badge-booking {
-            color: #fff; border-color: #fff; background: rgba(255,255,255,0.2);
-        }
-        .theme-sheet-yellow .badge-booking {
-             color: #713f12; border-color: #713f12; background: rgba(255,255,255,0.3);
-        }
+        .badge-booking { font-weight: 800; border: 1px solid #fb923c; padding: 0px 4px; border-radius: 3px; margin-right: 4px; color: #fb923c; font-size: 0.75rem; vertical-align: middle; }
+        .theme-sheet-green .badge-booking, .theme-sheet-pink .badge-booking { color: #fff; border-color: #fff; background: rgba(255,255,255,0.2); }
+        .theme-sheet-yellow .badge-booking { color: #713f12; border-color: #713f12; background: rgba(255,255,255,0.3); }
 
-        /* Room Tag */
-        .room-tag {
-            font-family: 'Rajdhani', sans-serif;
-            background: #422006; color: #facc15;
-            border: 1px solid #ca8a04;
-            padding: 1px 6px; border-radius: 4px;
-            font-size: 0.9rem; font-weight: 700;
-        }
-        .theme-sheet-green .room-tag, .theme-sheet-pink .room-tag {
-            background: rgba(0,0,0,0.5); color: #fff; border: none;
-        }
-        .theme-sheet-yellow .room-tag {
-            background: rgba(0,0,0,0.6); color: #fff; border: none;
-        }
+        .room-tag { font-family: 'Rajdhani', sans-serif; background: #422006; color: #facc15; border: 1px solid #ca8a04; padding: 1px 6px; border-radius: 4px; font-size: 0.9rem; font-weight: 700; }
+        .theme-sheet-green .room-tag, .theme-sheet-pink .room-tag { background: rgba(0,0,0,0.5); color: #fff; border: none; }
+        .theme-sheet-yellow .room-tag { background: rgba(0,0,0,0.6); color: #fff; border: none; }
 
         .spin-slow { animation: spin 2s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="pb-20">
-
     <header class="bg-slate-900/95 backdrop-blur border-b border-slate-700 sticky top-0 z-50">
         <div class="container mx-auto px-4 py-2 flex justify-between items-center max-w-5xl">
             <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded bg-cyan-800 flex items-center justify-center text-white">
-                    <i class="fas fa-notes-medical text-sm"></i>
-                </div>
+                <div class="w-8 h-8 rounded bg-cyan-800 flex items-center justify-center text-white"><i class="fas fa-notes-medical text-sm"></i></div>
                 <div>
                     <h1 class="text-lg font-bold text-white">คิวงานแพทย์แผนไทย</h1>
                     <div class="text-[10px] text-slate-400 font-mono" id="lastUpdate">Connecting...</div>
                 </div>
             </div>
-            <button onclick="fetchData(false)" class="w-8 h-8 rounded-full bg-slate-800 text-cyan-400 border border-slate-600 hover:bg-slate-700 flex items-center justify-center">
-                <i class="fas fa-sync-alt text-xs" id="refreshIcon"></i>
-            </button>
+            <button onclick="fetchData(false)" class="w-8 h-8 rounded-full bg-slate-800 text-cyan-400 border border-slate-600 hover:bg-slate-700 flex items-center justify-center"><i class="fas fa-sync-alt text-xs" id="refreshIcon"></i></button>
         </div>
     </header>
 
@@ -171,9 +86,7 @@
     <div id="contentArea" class="container mx-auto px-4 mt-4 max-w-5xl space-y-6"></div>
 
     <script>
-        // ⚠️ ใส่ URL Web App ของคุณ
         const API_URL = "https://script.google.com/macros/s/AKfycbzGmp_5CoVDXRugHW8DOFHes4QI9p-Ho5J5th6hjrCd3U-fTFSkW9X84gRN_xo8au3UQg/exec";
-
         let allData = [];
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -184,11 +97,9 @@
         async function fetchData(isBackground) {
             const refreshIcon = document.getElementById('refreshIcon');
             if(!isBackground) refreshIcon.classList.add('spin-slow');
-
             try {
                 const res = await fetch(API_URL + "?t=" + new Date().getTime());
                 const json = await res.json();
-                
                 if(json.status === 'success') {
                     allData = json.data;
                     const now = new Date();
@@ -269,32 +180,21 @@
                     
                     } else if (item.status === 'cancelled') {
                         themeClass = 'theme-cancel';
-                        // แสดงชื่อคนยกเลิก (ขีดฆ่า)
+                        // ⚠️ Logic นี้จะโชว์ทั้ง ชื่อคน หรือ หมายเหตุ (เช่น "รถเสีย")
                         patientName = `<span class="line-through opacity-50">${item.patient}</span>`;
-                        descHtml = `<div class="font-bold text-slate-400 text-xs">ยกเลิก/ผิดนัด</div>`;
-
+                        descHtml = `<div class="font-bold text-slate-400 text-xs">ยกเลิก/หมายเหตุ</div>`;
                     } else {
-                        // สถานะ Busy
                         let txt = item.treatment || '';
                         let badge = '';
-
-                        // เลือก Style ของ Badge ว่าจะอยู่บนพื้นสีสด หรือ พื้นมืด
                         const badgeStyle = isSheetColor ? 'badge-base badge-on-color' : 'badge-base';
                         const blueStyle = isSheetColor ? 'badge-base badge-on-color' : 'badge-base badge-blue';
                         const cyanStyle = isSheetColor ? 'badge-base badge-on-color' : 'badge-base badge-cyan';
 
-                        if (txt.includes('นวดส่งเสริม')) {
-                            badge = `<span class="${blueStyle}">นวดส่งเสริม</span>`;
-                        } else if (txt.includes('นวดรักษา')) {
-                            badge = `<span class="${cyanStyle}">นวดรักษา</span>`;
-                        } else {
-                             badge = `<span class="text-desc ${isSheetColor ? 'text-white/80' : ''}">${txt.replace('จอง','').trim()}</span>`;
-                        }
+                        if (txt.includes('นวดส่งเสริม')) badge = `<span class="${blueStyle}">นวดส่งเสริม</span>`;
+                        else if (txt.includes('นวดรักษา')) badge = `<span class="${cyanStyle}">นวดรักษา</span>`;
+                        else badge = `<span class="text-desc ${isSheetColor ? 'text-white/80' : ''}">${txt.replace('จอง','').trim()}</span>`;
                         
-                        if (txt.includes('จอง')) {
-                            badge = `<span class="badge-booking">จอง</span>` + badge;
-                        }
-                        
+                        if (txt.includes('จอง')) badge = `<span class="badge-booking">จอง</span>` + badge;
                         descHtml = `<div>${badge || '&nbsp;'}</div>`;
                     }
 
@@ -313,12 +213,10 @@
                                     <span class="truncate pr-2">${item.staff}</span>
                                     ${telBtn}
                                 </div>
-                                
                                 <div class="flex-grow flex flex-col justify-between">
                                     <div class="patient-name-container">
                                         <div class="patient-text w-full">${patientName}</div>
                                     </div>
-                                    
                                     <div class="mt-1 space-y-1">
                                         ${descHtml}
                                         ${roomBadge}
@@ -328,7 +226,6 @@
                         </div>
                     `;
                 });
-
                 html += `</div></div>`;
                 container.innerHTML += html;
             });
