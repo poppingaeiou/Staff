@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sadao Hospital - Smart Queue V7</title>
+    <title>Sadao Queue V9 (Status Color)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
@@ -17,226 +17,186 @@
             min-height: 100vh;
         }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #1e293b; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-
-        /* UI Elements */
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
-        }
-
+        /* Time Header */
         .time-header {
             font-family: 'Rajdhani', sans-serif;
-            background: linear-gradient(90deg, #0891b2 0%, #0f172a 90%);
-            color: white;
-            padding: 10px 18px;
-            font-size: 1.6rem;
+            background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%);
+            border-left: 5px solid #06b6d4;
+            color: #e2e8f0;
+            padding: 8px 16px;
+            font-size: 1.5rem;
             font-weight: 700;
-            border-radius: 8px;
-            margin-bottom: 14px;
+            border-radius: 6px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            box-shadow: 0 4px 12px rgba(8, 145, 178, 0.2);
-            border-left: 5px solid #22d3ee;
+            gap: 10px;
         }
 
+        /* --- Queue Card Base --- */
         .queue-card {
-            border-radius: 14px;
-            padding: 18px;
+            border-radius: 12px;
+            padding: 14px;
             position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 140px; /* สูงพอให้เห็นรายละเอียด */
+            border: 1px solid rgba(255,255,255,0.1);
         }
+
+        /* --- Status Themes (ตามภาพที่ส่งมา) --- */
         
-        /* Card Colors */
-        .bg-promo { /* ส่งเสริม */
-            background: linear-gradient(135deg, #172554 0%, #1e3a8a 100%);
-            border: 1px solid #1e40af;
-        }
-        .bg-treat { /* รักษา */
-            background: linear-gradient(135deg, #0f4c66 0%, #0e7490 100%);
-            border: 1px solid #0891b2;
-        }
-        .bg-normal { /* ทั่วไป */
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-            border: 1px solid #475569;
-        }
-        .bg-cancel { /* ยกเลิก */
-            background: #111827;
-            border: 1px solid #374151;
-            opacity: 0.5;
-            filter: grayscale(100%);
+        /* 1. ปกติ (Normal) */
+        .theme-normal { background: #1e293b; color: #f1f5f9; border-left: 6px solid #64748b; }
+
+        /* 2. ว่าง (Free) - เขียวอ่อนโปร่งแสง */
+        .theme-free { 
+            background: rgba(20, 83, 45, 0.3); 
+            border: 1px solid #22c55e; 
+            border-left: 6px solid #22c55e;
+            color: #dcfce7;
         }
 
+        /* 3. คนไข้มาแล้ว (Arrived) - สีเขียวสว่าง (ตัวหนังสือดำ) */
+        .theme-arrived {
+            background: #4ade80; /* Green 400 */
+            color: #064e3b;      /* Green 900 Text */
+            border: none;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
+        }
+
+        /* 4. โทรแจ้งแล้ว (Contacted) - สีชมพูบานเย็น (ตัวหนังสือดำ) */
+        .theme-contacted {
+            background: #e879f9; /* Fuchsia 400 */
+            color: #701a75;      /* Fuchsia 900 Text */
+            border: none;
+        }
+
+        /* 5. ติดต่อไม่ได้ (Unreachable) - สีเหลือง (ตัวหนังสือดำ) */
+        .theme-unreachable {
+            background: #facc15; /* Yellow 400 */
+            color: #451a03;      /* Yellow 950 Text */
+            border: none;
+        }
+
+        /* 6. ผิดนัด (Missed) - สีเทาเข้ม */
+        .theme-missed {
+            background: #475569; /* Slate 600 */
+            color: #cbd5e1;
+            border-left: 6px solid #94a3b8;
+        }
+
+        /* ชื่อผู้ช่วย */
         .staff-name {
-            font-size: 1.7rem; 
+            font-size: 1.6rem;
             font-weight: 700;
-            color: #f1f5f9;
+            margin-bottom: 6px;
             line-height: 1.1;
-            margin-bottom: 8px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
-        /* Neon Orange for Booking */
-        .booking-neon {
-            color: #fb923c;
-            font-weight: 800;
-            text-shadow: 0 0 10px rgba(251, 146, 60, 0.6);
-            border: 1px solid #fb923c;
+        /* ป้ายต่างๆ */
+        .badge-base {
             padding: 2px 8px;
             border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 600;
             display: inline-block;
-            background: rgba(251, 146, 60, 0.1);
+            margin-top: 4px;
         }
 
-        /* Room Badge */
-        .room-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: #422006; /* Yellow-950 */
-            color: #facc15;      /* Yellow-400 */
-            border: 1px solid #ca8a04;
-            padding: 4px 10px;
-            border-radius: 6px;
+        /* ป้ายแยกประเภท (ใช้เฉพาะตอนเป็นการ์ดปกติ) */
+        .badge-blue { background: #172554; color: #93c5fd; border: 1px solid #3b82f6; } /* นวดส่งเสริม */
+        .badge-cyan { background: #083344; color: #67e8f9; border: 1px solid #06b6d4; } /* นวดรักษา */
+        
+        /* ป้ายเลขห้อง */
+        .room-tag {
             font-family: 'Rajdhani', sans-serif;
-            font-weight: 700;
-            font-size: 1rem;
-            box-shadow: 0 0 10px rgba(234, 179, 8, 0.2);
+            background: #422006; color: #facc15;
+            border: 1px solid #ca8a04;
+            padding: 2px 8px; border-radius: 4px;
+            font-size: 1rem; font-weight: 700;
+        }
+        
+        /* ปรับสีป้ายเลขห้อง กรณีอยู่บนพื้นหลังสีสว่าง */
+        .theme-arrived .room-tag, .theme-unreachable .room-tag, .theme-contacted .room-tag {
+            background: rgba(255,255,255,0.8);
+            color: #000;
+            border: 1px solid rgba(0,0,0,0.2);
         }
 
-        /* Status Dot Animation */
-        @keyframes pulse-green {
-            0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
-            70% { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
-        }
-        .live-dot {
-            width: 10px; height: 10px;
-            background-color: #4ade80;
-            border-radius: 50%;
-            display: inline-block;
-            animation: pulse-green 2s infinite;
-        }
+        /* Animation */
+        .spin-slow { animation: spin 2s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="pb-24">
 
-    <header class="glass-panel sticky top-0 z-50">
+    <header class="bg-slate-900/90 backdrop-blur border-b border-slate-700 sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center max-w-5xl">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-600 to-cyan-900 flex items-center justify-center shadow-lg border border-cyan-400/30">
-                    <i class="fas fa-notes-medical text-white text-2xl"></i>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded bg-cyan-800 flex items-center justify-center text-white">
+                    <i class="fas fa-notes-medical"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl md:text-2xl font-bold text-white tracking-wide">คิวแพทย์แผนไทย</h1>
-                    <div id="statusDisplay" class="text-xs md:text-sm text-cyan-400 font-mono mt-0.5 flex items-center gap-2">
-                        <span class="live-dot"></span> ระบบออนไลน์ <span id="lastUpdate" class="text-slate-500 ml-2"></span>
-                    </div>
+                    <h1 class="text-xl font-bold text-white">คิวงานแพทย์แผนไทย</h1>
+                    <div class="text-xs text-slate-400 font-mono" id="lastUpdate">Connecting...</div>
                 </div>
             </div>
-            
-            <button onclick="fetchData(false)" class="w-10 h-10 rounded-full bg-slate-800 text-cyan-400 border border-slate-600 flex items-center justify-center hover:bg-slate-700 transition">
+            <button onclick="fetchData(false)" class="w-10 h-10 rounded-full bg-slate-800 text-cyan-400 border border-slate-600 hover:bg-slate-700 flex items-center justify-center">
                 <i class="fas fa-sync-alt" id="refreshIcon"></i>
             </button>
         </div>
     </header>
 
     <div class="container mx-auto px-4 mt-6 max-w-5xl">
-        <div class="relative">
-            <i class="fas fa-filter absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
-            <select id="staffFilter" onchange="filterData()" class="w-full pl-12 pr-4 py-4 bg-slate-800 text-white border border-slate-600 rounded-xl text-lg font-semibold shadow-lg focus:outline-none focus:border-cyan-500 appearance-none cursor-pointer hover:bg-slate-700 transition">
-                <option value="all">แสดงคิวของทุกคน (Show All)</option>
-            </select>
-            <i class="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none"></i>
-        </div>
+        <select id="staffFilter" onchange="filterData()" class="w-full p-3 bg-slate-800 text-white border border-slate-600 rounded-lg text-lg focus:outline-none focus:border-cyan-500 cursor-pointer">
+            <option value="all">แสดงคิวของทุกคน (Show All)</option>
+        </select>
     </div>
 
-    <div id="contentArea" class="container mx-auto px-4 mt-8 max-w-5xl space-y-10">
-        </div>
-
-    <div id="initialLoading" class="fixed inset-0 bg-[#0f172a] z-40 flex flex-col items-center justify-center">
-        <div class="w-16 h-16 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-        <p class="mt-4 text-cyan-400 animate-pulse font-mono tracking-widest">CONNECTING DATABASE...</p>
-    </div>
+    <div id="contentArea" class="container mx-auto px-4 mt-6 max-w-5xl space-y-8"></div>
 
     <script>
-        // ⚠️ ใส่ URL Web App ของคุณ
         const API_URL = "https://script.google.com/macros/s/AKfycbzGmp_5CoVDXRugHW8DOFHes4QI9p-Ho5J5th6hjrCd3U-fTFSkW9X84gRN_xo8au3UQg/exec";
 
         let allData = [];
-        let isFirstLoad = true;
 
-        // เริ่มทำงานเมื่อเปิดเว็บ
         document.addEventListener('DOMContentLoaded', () => {
-            fetchData(false); // โหลดครั้งแรก
-            
-            // ตั้งเวลา Auto Refresh ทุก 30 วินาที (แบบเงียบ)
-            setInterval(() => {
-                fetchData(true);
-            }, 30000); 
+            fetchData(false);
+            setInterval(() => fetchData(true), 30000); 
         });
 
         async function fetchData(isBackground) {
             const refreshIcon = document.getElementById('refreshIcon');
-            
-            if(!isBackground) {
-                // ถ้าไม่ใช่ Background (คือโหลดครั้งแรก หรือกดปุ่ม) ให้แสดง Loading
-                if(isFirstLoad) document.getElementById('initialLoading').classList.remove('hidden');
-                refreshIcon.classList.add('fa-spin');
-            } else {
-                // ถ้าเป็น Auto Refresh แค่หมุนไอคอนเล็กๆ
-                refreshIcon.classList.add('fa-spin');
-            }
+            if(!isBackground) refreshIcon.classList.add('spin-slow');
 
             try {
-                // ใส่ Timestamp กัน Cache
                 const res = await fetch(API_URL + "?t=" + new Date().getTime());
                 const json = await res.json();
                 
                 if(json.status === 'success') {
                     allData = json.data;
-                    
-                    // อัปเดตเวลาล่าสุด
                     const now = new Date();
-                    document.getElementById('lastUpdate').innerText = `(อัปเดต ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')})`;
-                    
+                    document.getElementById('lastUpdate').innerText = `Updated: ${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}`;
                     setupFilter(allData);
                     renderTimeline(allData);
                 }
-            } catch(e) { 
-                console.error("Connection error:", e);
-                if(!isBackground) alert('การเชื่อมต่อมีปัญหา กรุณาลองใหม่');
-            } finally {
-                // ปิด Loading
-                document.getElementById('initialLoading').classList.add('hidden');
-                refreshIcon.classList.remove('fa-spin');
-                isFirstLoad = false;
-            }
+            } catch(e) { console.error(e); } 
+            finally { refreshIcon.classList.remove('spin-slow'); }
         }
 
         function setupFilter(data) {
             const select = document.getElementById('staffFilter');
             const current = select.value;
             const staffSet = new Set(data.map(d => d.staff));
-            
-            // เก็บ Option แรกไว้ (Show All) ลบที่เหลือแล้วสร้างใหม่
             while (select.options.length > 1) select.remove(1);
-
             Array.from(staffSet).sort().forEach(s => {
                 const opt = document.createElement('option');
-                opt.value = s;
-                opt.text = `ดูคิวของ: ${s}`;
-                select.add(opt);
+                opt.value = s; opt.text = `คิวของ: ${s}`; select.add(opt);
             });
-            // คงค่าเดิมที่เลือกไว้
             select.value = current;
         }
 
@@ -246,111 +206,111 @@
             else renderTimeline(allData.filter(d => d.staff === who));
         }
 
-        // เช็คว่างานจบหรือยัง (เกิน 1 ชม.)
         function isJobFinished(timeStr) {
             const now = new Date();
             const [hours, minutes] = timeStr.split(':').map(Number);
-            
-            const jobTime = new Date();
-            jobTime.setHours(hours, minutes, 0, 0);
-            
-            // เวลาจบ = เวลาเริ่ม + 60 นาที
-            const finishTime = new Date(jobTime.getTime() + (60 * 60 * 1000));
-            
-            return now > finishTime;
+            const jobTime = new Date(); jobTime.setHours(hours, minutes, 0, 0);
+            return now > new Date(jobTime.getTime() + (60 * 60 * 1000));
         }
 
         function renderTimeline(data) {
             const container = document.getElementById('contentArea');
             container.innerHTML = '';
-
-            // กรองงานเก่าทิ้ง
-            const activeData = data.filter(d => !isJobFinished(d.time));
+            
+            // เปิดใช้บรรทัดล่างเพื่อซ่อนคิวเก่า
+            const activeData = data.filter(d => !isJobFinished(d.time)); 
+            // const activeData = data; 
 
             if(activeData.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center p-12 bg-slate-800/50 rounded-2xl border-2 border-dashed border-slate-700">
-                        <i class="fas fa-mug-hot text-5xl text-slate-600 mb-4"></i>
-                        <p class="text-slate-400 text-xl font-medium">ไม่มีคิวค้างในขณะนี้</p>
-                        <p class="text-slate-600 text-sm mt-2">ระบบจะซ่อนคิวที่ผ่านไปแล้วเกิน 1 ชม.</p>
-                    </div>`;
+                container.innerHTML = `<div class="text-center text-slate-500 py-10">ไม่พบคิวงานในขณะนี้</div>`;
                 return;
             }
 
-            // Group by Time
             const groups = activeData.reduce((acc, item) => {
                 if(!acc[item.time]) acc[item.time] = [];
-                acc[item.time].push(item);
-                return acc;
+                acc[item.time].push(item); return acc;
             }, {});
 
-            const times = Object.keys(groups).sort();
-
-            times.forEach(time => {
+            Object.keys(groups).sort().forEach(time => {
                 const items = groups[time];
                 
-                // Header เวลา
                 let html = `
                     <div class="fade-in">
-                        <div class="time-header">
-                            <i class="far fa-clock"></i> ${time} น.
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="time-header"><i class="far fa-clock"></i> ${time} น.</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 `;
 
                 items.forEach(item => {
-                    const isCancel = item.status === 'cancelled_slot';
-                    let treatmentTxt = item.treatment || '';
+                    const txt = (item.treatment || '') + " " + (item.patient || '');
+                    let themeClass = 'theme-normal';
+                    let patientName = item.patient;
+                    let descHtml = '';
 
-                    // Logic สีการ์ด
-                    let themeClass = 'bg-normal';
-                    if (isCancel) themeClass = 'bg-cancel';
-                    else if (treatmentTxt.includes('ส่งเสริม')) themeClass = 'bg-promo';
-                    else if (treatmentTxt.includes('รักษา')) themeClass = 'bg-treat';
-
-                    // Logic คำว่า "จอง" (สีส้มนีออน)
-                    if (treatmentTxt.includes('จอง')) {
-                        treatmentTxt = treatmentTxt.replace('จอง', '<span class="booking-neon"><i class="fas fa-bookmark mr-1"></i>จอง</span>');
+                    // --- Logic ตรวจสอบ Keyword เพื่อเปลี่ยนสีการ์ด ---
+                    
+                    if (item.status === 'available') {
+                        themeClass = 'theme-free';
+                        patientName = `<span class="font-bold"><i class="fas fa-check"></i> ว่าง</span>`;
+                        descHtml = `<div class="opacity-75">พร้อมรับงาน</div>`;
+                    
+                    } else if (item.status === 'cancelled' || item.cancelled || txt.includes('ผิดนัด')) {
+                        themeClass = 'theme-missed';
+                        patientName = `<span class="line-through opacity-75">${item.patient}</span>`;
+                        descHtml = `<div class="font-bold text-slate-300">ผิดนัด / ยกเลิก</div>`;
+                    
+                    } else if (txt.includes('มาแล้ว') || txt.includes('คนไข้มา')) {
+                        themeClass = 'theme-arrived'; // สีเขียว
+                        descHtml = `<div class="font-bold"><i class="fas fa-user-check"></i> คนไข้มาแล้ว</div>`;
+                    
+                    } else if (txt.includes('โทรแจ้ง')) {
+                        themeClass = 'theme-contacted'; // สีชมพู
+                        descHtml = `<div class="font-bold"><i class="fas fa-phone-volume"></i> โทรแจ้งแล้ว</div>`;
+                    
+                    } else if (txt.includes('ติดต่อไม่ได้')) {
+                        themeClass = 'theme-unreachable'; // สีเหลือง
+                        descHtml = `<div class="font-bold"><i class="fas fa-exclamation-triangle"></i> ติดต่อไม่ได้</div>`;
+                    
+                    } else {
+                        // --- กรณีปกติ (ไม่เข้าเงื่อนไขสถานะพิเศษ) ---
+                        // เช็คประเภทนวดเพื่อใส่ป้ายสี (Badge)
+                        let badge = '';
+                        if (txt.includes('นวดส่งเสริม')) badge = `<span class="badge-base badge-blue">นวดส่งเสริม</span>`;
+                        else if (txt.includes('นวดรักษา')) badge = `<span class="badge-base badge-cyan">นวดรักษา</span>`;
+                        else badge = `<span class="text-slate-400">${item.treatment.replace('จอง','').trim()}</span>`;
+                        
+                        // เช็คจอง
+                        if (txt.includes('จอง')) badge = `<span class="text-orange-400 font-bold border border-orange-400 rounded px-1 mr-1">จอง</span>` + badge;
+                        
+                        descHtml = `<div>${badge}</div>`;
                     }
 
-                    // Logic เลขห้อง (ป้ายชัดเจน)
-                    const roomBadge = item.room 
-                        ? `<div class="room-badge"><i class="fas fa-door-closed"></i> ห้อง ${item.room.replace('401','')}</div>` 
+                    // ปุ่มโทร (ปรับสีตาม Theme)
+                    const telBtn = (item.tel && item.status !== 'available') 
+                        ? `<a href="tel:${item.tel}" class="w-9 h-9 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition shadow"><i class="fas fa-phone"></i></a>` 
                         : '';
 
-                    // สร้าง HTML การ์ด
+                    // เลขห้อง
+                    const roomBadge = item.room 
+                        ? `<div class="mt-2 text-right"><span class="room-tag">${item.room}</span></div>` 
+                        : '';
+
                     html += `
-                        <div class="queue-card ${themeClass} group">
-                            
-                            <div class="staff-name">
-                                ${item.staff}
+                        <div class="queue-card ${themeClass}">
+                            <div class="staff-name flex justify-between items-start">
+                                <span>${item.staff}</span>
+                                ${telBtn}
                             </div>
-
-                            <div class="mt-4 flex justify-between items-end">
-                                <div class="space-y-2 w-full">
-                                    <div class="text-2xl font-medium ${isCancel ? 'line-through text-slate-500' : 'text-white'}">
-                                        ${item.patient}
-                                    </div>
-                                    
-                                    <div class="flex flex-wrap items-center gap-2">
-                                        <div class="text-base text-slate-200">
-                                            ${isCancel ? '<span class="text-red-500 font-bold bg-red-900/30 px-2 rounded">ยกเลิก</span>' : treatmentTxt}
-                                        </div>
-                                        ${!isCancel ? roomBadge : ''}
-                                    </div>
-                                </div>
-
-                                ${item.tel && !isCancel ? `
-                                    <a href="tel:${item.tel}" class="flex-shrink-0 w-12 h-12 rounded-full bg-white/10 hover:bg-green-500 hover:text-white flex items-center justify-center text-green-400 transition border border-white/20 shadow-lg">
-                                        <i class="fas fa-phone text-xl"></i>
-                                    </a>
-                                ` : ''}
+                            
+                            <div class="mt-2">
+                                <div class="text-xl font-medium leading-tight mb-2">${patientName}</div>
+                                ${descHtml}
+                                ${roomBadge}
                             </div>
                         </div>
                     `;
                 });
 
-                html += `</div></div>`; 
+                html += `</div></div>`;
                 container.innerHTML += html;
             });
         }
