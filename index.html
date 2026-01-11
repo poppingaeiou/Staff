@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sadao Queue V40 (Treatment Colors)</title>
+    <title>Sadao Queue V41 (Scheduler Grid)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
@@ -11,73 +11,102 @@
 
     <style>
         /* --- Core Theme --- */
-        body { font-family: 'Sarabun', sans-serif; background-color: #0b1021; color: #e2e8f0; min-height: 100vh; overflow-x: hidden; background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px), radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px); background-size: 550px 550px, 350px 350px; animation: starMove 120s linear infinite; }
+        body { font-family: 'Sarabun', sans-serif; background-color: #0b1021; color: #e2e8f0; height: 100vh; overflow: hidden; /* ล็อค Body ให้ Scroll ใน Grid แทน */ }
+        
+        /* Background Stars */
+        .bg-stars { position: fixed; inset: 0; z-index: -1; background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px), radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px); background-size: 550px 550px, 350px 350px; animation: starMove 120s linear infinite; pointer-events: none; }
         @keyframes starMove { from { background-position: 0 0; } to { background-position: 550px 550px; } }
-        .time-header { font-family: 'Rajdhani', sans-serif; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); border-left: 5px solid #22d3ee; box-shadow: 0 0 15px rgba(6, 182, 212, 0.2); color: #fff; padding: 8px 16px; font-size: 1.5rem; font-weight: 700; border-radius: 10px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
-        .queue-card { border-radius: 16px; padding: 8px; position: relative; transition: all 0.3s ease; display: flex; flex-direction: column; height: 100%; border: 1px solid rgba(255, 255, 255, 0.08); overflow: hidden; }
+
+        /* --- SCHEDULER GRID SYSTEM (หัวใจของ V.41) --- */
+        .scheduler-wrapper {
+            display: grid;
+            overflow: auto;
+            height: calc(100vh - 140px); /* ความสูงเต็มจอ ลบ Header/Filter */
+            position: relative;
+            /* Grid จะถูกกำหนด Columns Dynamic โดย JS */
+            grid-template-rows: 60px auto; /* แถวแรกเป็น Header */
+            gap: 1px; /* เส้นตาราง */
+            background: rgba(255,255,255,0.05); /* สีเส้นตาราง */
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* 1. มุมซ้ายบนสุด (ว่างเปล่า/โลโก้) */
+        .sticky-corner {
+            position: sticky; left: 0; top: 0; z-index: 50;
+            background: #0f172a; /* พื้นหลังทึบกันมองทะลุ */
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Rajdhani', sans-serif; font-weight: bold; color: #22d3ee; font-size: 1.2rem;
+        }
+
+        /* 2. หัวตารางด้านบน (ชื่อหมอ) - เลื่อนซ้ายขวาได้ แต่ติดด้านบน */
+        .sticky-top {
+            position: sticky; top: 0; z-index: 40;
+            background: #1e293b; 
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 8px; display: flex; align-items: center; justify-content: center;
+            text-align: center; font-weight: bold; font-size: 1.1rem;
+            white-space: nowrap;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+        .header-ttm { color: #2dd4bf; border-top: 3px solid #2dd4bf; }
+        .header-tcm { color: #f87171; border-top: 3px solid #f87171; }
+
+        /* 3. หัวตารางด้านซ้าย (เวลา) - เลื่อนขึ้นลงได้ แต่ติดด้านซ้าย */
+        .sticky-left {
+            position: sticky; left: 0; z-index: 30;
+            background: #0f172a;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center; flex-direction: column;
+            font-family: 'Rajdhani', sans-serif; font-size: 1.2rem; font-weight: 700; color: #e2e8f0;
+            width: 90px; /* ความกว้างคงที่ของช่องเวลา */
+        }
+        .time-sub { font-size: 0.8rem; opacity: 0.6; font-weight: normal; margin-top: -2px; }
+
+        /* 4. ช่องใส่การ์ด (Cell) */
+        .grid-cell {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 8px;
+            min-width: 280px; /* ความกว้างขั้นต่ำของการ์ด */
+            min-height: 160px; /* ความสูงขั้นต่ำ */
+            display: flex; flex-direction: column;
+        }
+        .grid-cell:hover { background: rgba(30, 41, 59, 0.8); }
+
+        /* --- CARD STYLE (Compact for Grid) --- */
+        .queue-card { border-radius: 12px; padding: 10px; position: relative; transition: all 0.2s ease; display: flex; flex-direction: column; height: 100%; border: 1px solid rgba(255, 255, 255, 0.08); overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .queue-card:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.3); }
         .card-loading { animation: cardPulse 1.5s infinite alternate; }
         @keyframes cardPulse { 0% { box-shadow: 0 0 10px rgba(255,255,255,0.1); } 100% { box-shadow: 0 0 25px rgba(255,255,255,0.4); filter: brightness(1.1); } }
 
-        .card-header-layer {
-            border-radius: 12px; padding: 8px 12px; margin-bottom: 8px; 
-            border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.1); 
-        }
-        /* Header Colors */
-        .header-ttm { background: linear-gradient(90deg, rgba(13, 148, 136, 0.4), rgba(15, 118, 110, 0.2)); border-bottom: 2px solid #2dd4bf; }
-        .header-tcm { background: linear-gradient(90deg, rgba(185, 28, 28, 0.4), rgba(153, 27, 27, 0.2)); border-bottom: 2px solid #f87171; }
-
-        /* Themes */
-        .theme-normal { background: rgba(30, 41, 59, 0.85); border-left: 5px solid #94a3b8; }
-        .theme-free { background: rgba(6, 78, 59, 0.6); border: 1px solid #10b981; border-left: 5px solid #10b981; color: #d1fae5; }
-        .theme-cancel { background: #334155; color: #94a3b8; border-left: 5px solid #64748b; opacity: 0.9; }
-        .theme-sheet-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); color: #fff; border: 2px solid #86efac; box-shadow: 0 4px 15px rgba(22, 163, 74, 0.3); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        /* Themes & Badges (เหมือนเดิม) */
+        .theme-normal { background: rgba(30, 41, 59, 0.95); border-left: 4px solid #94a3b8; }
+        .theme-free { background: rgba(6, 78, 59, 0.7); border: 1px solid #10b981; border-left: 4px solid #10b981; color: #d1fae5; }
+        .theme-cancel { background: #334155; color: #94a3b8; border-left: 4px solid #64748b; opacity: 0.9; }
+        .theme-sheet-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); color: #fff; border: 2px solid #86efac; }
         .theme-sheet-pink { background: linear-gradient(135deg, #e879f9 0%, #a21caf 100%); color: #fff; border: 2px solid #f5d0fe; }
-        .theme-sheet-yellow { background: linear-gradient(135deg, #facc15 0%, #a16207 100%); color: #422006; border: 2px solid #fef08a; text-shadow: none; }
-        .theme-sheet-red { background: linear-gradient(135deg, #ef4444 0%, #7f1d1d 100%); color: #fff; border: 2px solid #f87171; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
+        .theme-sheet-yellow { background: linear-gradient(135deg, #facc15 0%, #a16207 100%); color: #422006; border: 2px solid #fef08a; }
+        .theme-sheet-red { background: linear-gradient(135deg, #ef4444 0%, #7f1d1d 100%); color: #fff; border: 2px solid #f87171; }
 
-        .staff-name { font-size: 1.15rem; font-weight: 800; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.9; margin-bottom: 2px; display: flex; align-items: center; }
-        .patient-name-container { min-height: 52px; display: flex; align-items: center; padding-bottom: 4px; }
-        .patient-text { font-size: 1.3rem; font-weight: 700; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; padding-top: 2px; }
-
-        /* Dept Badge */
-        .dept-tag { font-size: 0.7rem; padding: 2px 6px; border-radius: 6px; margin-left: 8px; font-weight: bold; white-space: nowrap; letter-spacing: 0.5px; box-shadow: 0 1px 2px rgba(0,0,0,0.2); display: inline-block; vertical-align: middle; }
-        .tag-ttm { background-color: #0d9488; color: white; border: 1px solid #5eead4; }
-        .tag-tcm { background-color: #be123c; color: white; border: 1px solid #fda4af; }
-
-        .card-time-badge { font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; background: rgba(0,0,0,0.3); padding: 1px 6px; border-radius: 4px; color: #22d3ee; border: 1px solid rgba(34, 211, 238, 0.3); margin-bottom: 2px; display: inline-block; }
-        .theme-sheet-green .card-time-badge, .theme-sheet-pink .card-time-badge, .theme-sheet-yellow .card-time-badge, .theme-sheet-red .card-time-badge { color: #fff; border-color: rgba(255,255,255,0.4); background: rgba(0,0,0,0.15); }
-        .theme-sheet-yellow .card-time-badge { color: #422006; border-color: rgba(66, 32, 6, 0.2); }
-
-        .badge-booking { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(145deg, #fb923c, #c2410c); color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 800; box-shadow: 0 2px 0 #9a3412; margin-right: 5px; margin-bottom: 2px; transform: translateY(-1px); border: 1px solid rgba(255,255,255,0.2); }
+        .patient-text { font-size: 1.2rem; font-weight: 700; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 4px; }
         
-        /* ★★★ TREATMENT BADGES (สีป้ายรายการรักษา) ★★★ */
-        .badge-treatment { display: inline-block; padding: 2px 8px; border-radius: 6px; font-weight: 600; font-size: 0.95rem; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-        
-        /* 1. ทับหม้อเกลือ (สีชมพู) */
+        /* Badges */
+        .badge-treatment { display: inline-block; padding: 2px 8px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         .badge-treatment-pink { background: linear-gradient(135deg, #ec4899, #be185d); color: white; border: 1px solid #fbcfe8; }
-        
-        /* 2. นวดตัวส่งเสริม (สีน้ำเงินเข้ม) */
         .badge-treatment-darkblue { background: linear-gradient(135deg, #1e3a8a, #172554); color: white; border: 1px solid #60a5fa; }
-        
-        /* 3. นวดรักษา (สีน้ำเงินฟ้า) */
         .badge-treatment-lightblue { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; border: 1px solid #bae6fd; }
-        
-        /* 4. ค่าเริ่มต้น (สีเขียวมิ้นต์เดิม) */
         .badge-treatment-default { background: rgba(6, 182, 212, 0.15); border: 1px solid #06b6d4; color: #67e8f9; }
-        
-        /* กรณีอยู่บนการ์ดสี (Override สีพื้นให้กลืนกัน) */
-        .theme-sheet-green .badge-treatment, .theme-sheet-pink .badge-treatment, .theme-sheet-yellow .badge-treatment, .theme-sheet-red .badge-treatment { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .badge-booking { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(145deg, #fb923c, #c2410c); color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 800; box-shadow: 0 2px 0 #9a3412; margin-right: 5px; border: 1px solid rgba(255,255,255,0.2); }
 
-        .strike-text { color: #fca5a5; text-decoration: line-through; font-weight: 700; font-size: 0.95rem; background: rgba(0,0,0,0.5); padding: 1px 6px; border-radius: 4px; }
-        .theme-sheet-yellow .strike-text { color: #991b1b; background: rgba(255,255,255,0.5); }
-        .theme-sheet-red .strike-text { color: #fee2e2; background: rgba(0,0,0,0.2); text-decoration-color: #fff; }
-        .theme-sheet-green .strike-text, .theme-sheet-pink .strike-text { color: #fff; background: rgba(0,0,0,0.2); }
-
-        .room-tag { font-family: 'Rajdhani', sans-serif; background: #000; color: #facc15; border: 1px solid #ca8a04; padding: 1px 8px; border-radius: 6px; font-size: 1rem; font-weight: 700; box-shadow: 0 3px 8px rgba(0,0,0,0.3); }
-        .icon-btn { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; transition: all 0.2s; cursor: pointer; }
+        /* UI Elements */
+        .icon-btn { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; transition: all 0.2s; cursor: pointer; }
         .icon-btn:hover { transform: scale(1.1); background: rgba(255,255,255,0.4); }
         .theme-sheet-yellow .icon-btn { color: #422006; border-color: rgba(66, 32, 6, 0.2); background: rgba(255,255,255,0.4); }
-
+        
+        /* Modal (คงเดิม) */
         .modal-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: flex; justify-content: center; items-center; transition: opacity 0.3s; opacity: 0; pointer-events: none; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-box { background: #1e293b; border: 1px solid #475569; border-radius: 16px; padding: 20px; width: 90%; max-width: 380px; transform: scale(0.9); transition: transform 0.3s; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
@@ -90,30 +119,27 @@
         .btn-yellow { background: #facc15; color: #422006; border-color: #fde047; }
         .btn-red { background: #ef4444; color: white; border-color: #f87171; }
         .btn-white { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
-
+        
         .input-group label { display: block; color: #94a3b8; font-size: 0.85rem; margin-bottom: 4px; }
         .input-group input { width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 10px; border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.2s; }
-        .input-group input:focus { border-color: #22d3ee; }
-        .save-btn { width: 100%; background: linear-gradient(90deg, #06b6d4, #3b82f6); color: white; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 1.1rem; margin-top: 10px; box-shadow: 0 4px 10px rgba(6, 182, 212, 0.3); }
-        .save-btn:active { transform: translateY(2px); }
-
-        .fade-in { animation: fadeIn 0.4s ease-out; } @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .save-btn { width: 100%; background: linear-gradient(90deg, #06b6d4, #3b82f6); color: white; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 1.1rem; margin-top: 10px; }
         .spin-slow { animation: spin 2s linear infinite; } @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="pb-20">
+<body class="pb-2">
+    <div class="bg-stars"></div>
 
-    <header class="bg-slate-900/90 backdrop-blur-md border-b border-cyan-500/30 sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center max-w-6xl">
+    <header class="bg-slate-900/95 backdrop-blur-md border-b border-cyan-500/30 sticky top-0 z-[60]">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center max-w-full">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-600 to-blue-900 flex items-center justify-center text-white border border-cyan-400 shadow-lg">
-                    <i class="fas fa-spa text-xl"></i>
+                    <i class="fas fa-table text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-extrabold text-white tracking-wide">คิวแพทย์แผนไทย/จีน</h1>
+                    <h1 class="text-xl font-extrabold text-white tracking-wide">ตารางคิวรวม</h1>
                     <div class="flex items-center gap-2 text-cyan-400 text-[10px] font-mono mt-0.5">
                         <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                        <span id="lastUpdate">TEST MODE: 12/1</span>
+                        <span id="lastUpdate">INITIALIZING...</span>
                     </div>
                 </div>
             </div>
@@ -123,13 +149,11 @@
         </div>
     </header>
 
-    <div class="container mx-auto px-4 mt-6 max-w-6xl">
-        <select id="staffFilter" onchange="filterData()" class="w-full p-3 bg-slate-900 text-white border border-slate-700 rounded-xl text-lg font-bold focus:outline-none focus:border-cyan-500 cursor-pointer shadow-xl appearance-none">
-            <option value="all">⚡ แสดงคิวของทุกคน (Show All)</option>
-        </select>
+    <div class="p-2 h-full">
+        <div id="schedulerContainer" class="scheduler-wrapper">
+            <div class="p-10 text-center text-slate-400 col-span-full">Loading data...</div>
+        </div>
     </div>
-
-    <div id="contentArea" class="container mx-auto px-4 mt-6 max-w-6xl space-y-8"></div>
 
     <div id="statusModal" class="modal-overlay">
         <div class="modal-box">
@@ -154,31 +178,17 @@
                 <button onclick="closeModal('editModal')" class="text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
             </div>
             <div class="space-y-3">
-                <div class="input-group">
-                    <label>ชื่อ - สกุล</label>
-                    <input type="text" id="edit-val1" placeholder="ระบุชื่อคนไข้">
-                </div>
-                <div class="input-group">
-                    <label>เบอร์โทร</label>
-                    <input type="text" id="edit-val2" placeholder="ระบุเบอร์โทร">
-                </div>
-                <div class="input-group">
-                    <label>รายการรักษา</label>
-                    <input type="text" id="edit-val3" list="treatment-options" placeholder="เลือกรายการ...">
-                    <datalist id="treatment-options">
-                        </datalist>
-                </div>
-                <div class="input-group">
-                    <label>หมายเหตุ</label>
-                    <input type="text" id="edit-val4" placeholder="เช่น อาการ, รถเสีย">
-                </div>
+                <div class="input-group"><label>ชื่อ</label><input type="text" id="edit-val1"></div>
+                <div class="input-group"><label>เบอร์โทร</label><input type="text" id="edit-val2"></div>
+                <div class="input-group"><label>รายการ</label><input type="text" id="edit-val3" list="treatment-options"><datalist id="treatment-options"></datalist></div>
+                <div class="input-group"><label>หมายเหตุ</label><input type="text" id="edit-val4"></div>
                 <button onclick="saveEditData()" class="save-btn">บันทึกข้อมูล</button>
             </div>
         </div>
     </div>
 
     <script>
-        // ⚠️ Updated URL (V.38 - Backend ตัวเดิม)
+        // ⚠️ Backend V.38 URL
         const API_URL = "https://script.google.com/macros/s/AKfycbx7biDk5VGc0xkjAxLiN3OQXKoRU5kok144Z9TTQeSw4EVUD5XWeFEuPOCK04mR5mXj5A/exec";
         
         let allData = [];
@@ -199,267 +209,191 @@
                     allData = json.data;
                     const now = new Date();
                     document.getElementById('lastUpdate').innerText = `UPDATED: ${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}`;
-                    setupFilter(allData);
-                    renderTimeline(allData);
+                    renderScheduler(allData);
                 }
             } catch(e) { console.error(e); } 
             finally { if(refreshIcon) refreshIcon.classList.remove('spin-slow'); }
         }
 
-        // --- Logic สร้างป้ายพร้อมสี (Updated V.40) ---
+        // ★★★ RENDER SCHEDULER (TABLE VIEW) ★★★
+        function renderScheduler(data) {
+            const container = document.getElementById('schedulerContainer');
+            if(data.length === 0) { container.innerHTML = `<div class="p-10 text-white">No Data</div>`; return; }
+
+            // 1. แยกแยะข้อมูล Staff และ Time ทั้งหมด
+            const staffMap = new Map(); // เก็บชื่อหมอและแผนก
+            const timeSet = new Set();  // เก็บเวลาทั้งหมด
+
+            data.forEach(item => {
+                if(!staffMap.has(item.staff)) {
+                    staffMap.set(item.staff, item.dept);
+                }
+                timeSet.add(item.time);
+            });
+
+            // เรียงชื่อหมอ (ไทยมาก่อน จีนทีหลัง หรือเรียงตามตัวอักษร)
+            const staffList = Array.from(staffMap.keys()).sort((a,b) => {
+                // ถ้าอยากแยกแผนกชัดเจน ให้เช็ค dept ก่อน
+                if(staffMap.get(a) === 'TTM' && staffMap.get(b) === 'TCM') return -1;
+                if(staffMap.get(a) === 'TCM' && staffMap.get(b) === 'TTM') return 1;
+                return a.localeCompare(b);
+            });
+
+            // เรียงเวลา
+            const timeList = Array.from(timeSet).sort();
+
+            // 2. ตั้งค่า CSS Grid Columns (ช่องเวลา 1 ช่อง + ช่องหมอ N ช่อง)
+            container.style.gridTemplateColumns = `90px repeat(${staffList.length}, minmax(280px, 1fr))`;
+
+            let html = '';
+
+            // --- ROW 1: HEADER ---
+            // 1.1 Sticky Corner (บนซ้ายสุด)
+            html += `<div class="sticky-corner"><i class="far fa-clock"></i></div>`;
+
+            // 1.2 Staff Headers (Sticky Top)
+            staffList.forEach(staff => {
+                const dept = staffMap.get(staff);
+                const headerClass = (dept === 'TCM') ? 'header-tcm' : 'header-ttm';
+                const icon = (dept === 'TCM') ? '<i class="fas fa-yin-yang ml-1 opacity-70"></i>' : '<i class="fas fa-spa ml-1 opacity-70"></i>';
+                html += `<div class="sticky-top ${headerClass}">${staff} ${icon}</div>`;
+            });
+
+            // --- DATA ROWS ---
+            timeList.forEach(time => {
+                // 2.1 Time Label (Sticky Left)
+                html += `<div class="sticky-left">${time}<span class="time-sub">น.</span></div>`;
+
+                // 2.2 Card Cells
+                staffList.forEach(staff => {
+                    // หาการ์ดที่ตรงกับ (Time + Staff)
+                    const item = data.find(d => d.time === time && d.staff === staff);
+                    
+                    html += `<div class="grid-cell">`;
+                    if (item) {
+                        html += createCardHtml(item);
+                    }
+                    html += `</div>`;
+                });
+            });
+
+            container.innerHTML = html;
+        }
+
+        // ฟังก์ชันสร้าง HTML การ์ดย่อย (เอามาจาก V.40 แต่ตัด Header ออก เพราะมี Header ตารางแล้ว)
+        function createCardHtml(item) {
+            let themeClass = 'theme-normal';
+            let patientName = item.patient;
+            const bg = (item.bgColor || "").toLowerCase();
+            const isSheetColor = (bg === '#00ff00' || bg === '#lime' || bg === '#ff00ff' || bg === '#magenta' || bg === '#ffff00' || bg === '#yellow' || bg === '#ef4444' || bg === 'red');
+
+            if (bg === '#00ff00' || bg === '#lime') themeClass = 'theme-sheet-green';
+            else if (bg === '#ff00ff' || bg === '#magenta' || bg === '#ea4335') themeClass = 'theme-sheet-pink';
+            else if (bg === '#ffff00' || bg === '#yellow') themeClass = 'theme-sheet-yellow';
+            else if (bg === '#ef4444' || bg === 'red') themeClass = 'theme-sheet-red';
+
+            let statusIcon = '';
+            if (item.status === 'available') {
+                if(themeClass === 'theme-normal') themeClass = 'theme-free'; 
+                patientName = `<span class="text-emerald-300 drop-shadow-md">ว่าง</span>`;
+                statusIcon = `<i class="fas fa-check-circle text-emerald-400 text-lg"></i>`;
+            } else if (item.status === 'cancelled') {
+                themeClass = 'theme-cancel';
+                if (bg === '#ef4444') themeClass = 'theme-sheet-red'; 
+                patientName = `<span class="line-through opacity-60">${item.patient}</span>`;
+                statusIcon = `<i class="fas fa-ban text-slate-400 text-lg"></i>`;
+            } else {
+                statusIcon = isSheetColor ? `<i class="fas fa-user text-black opacity-20 text-lg"></i>` : `<i class="fas fa-user text-cyan-200 opacity-30 text-lg"></i>`;
+                if (bg === '#ef4444') statusIcon = `<i class="fas fa-user-times text-white opacity-50 text-lg"></i>`;
+            }
+
+            const itemDataStr = encodeURIComponent(JSON.stringify(item));
+            const settingBtn = `<button id="setting-btn-${item.id}" onclick="openStatusModal('${itemDataStr}')" class="icon-btn ml-1 hover:bg-white/20"><i class="fas fa-cog text-xs"></i></button>`;
+            const editBtn = `<button id="edit-btn-${item.id}" onclick="openEditModal('${itemDataStr}')" class="icon-btn ml-1 hover:bg-white/20"><i class="fas fa-pen text-[10px]"></i></button>`;
+            const telBtn = (item.tel && item.status !== 'available' && item.status !== 'cancelled') ? `<a href="tel:${item.tel}" class="icon-btn"><i class="fas fa-phone text-xs"></i></a>` : '';
+
+            // Content
+            let contentHtml = '';
+            if (item.status !== 'available' && item.status !== 'cancelled') {
+                let txtTreatment = item.treatment || '';
+                let txtRemarks = item.remarks || '';
+                let row1Html = formatBadge(txtTreatment);
+                let row2Html = '';
+                if (txtRemarks !== '') {
+                    if (item.isRemarkStrike) row2Html = `<div class="mt-1"><span class="strike-text"><i class="fas fa-user-times mr-1"></i>${txtRemarks}</span></div>`;
+                    else row2Html = `<div class="mt-1 text-sm font-medium opacity-90">${formatBadge(txtRemarks)}</div>`;
+                }
+                contentHtml = `<div class="mt-auto flex flex-col justify-start"><div>${row1Html}</div>${row2Html}</div>`;
+            } else if (item.status === 'available') {
+                contentHtml = `<div class="mt-auto opacity-70 text-sm">พร้อมให้บริการ</div>`;
+            } else if (item.status === 'cancelled') {
+                contentHtml = `<div class="mt-auto font-bold opacity-70 text-sm">ยกเลิกนัด</div>`;
+            }
+
+            const roomBadge = item.room ? `<div class="absolute bottom-2 right-2"><span class="room-tag text-xs">${item.room}</span></div>` : '';
+
+            return `
+                <div id="card-${item.id}" class="queue-card ${themeClass}">
+                    <div class="flex justify-between items-start mb-1">
+                        <div class="patient-text w-full">${patientName}</div>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="flex">${telBtn}${editBtn}${settingBtn}</div>
+                        <div>${statusIcon}</div>
+                    </div>
+                    ${contentHtml}
+                    ${roomBadge}
+                </div>
+            `;
+        }
+
         function formatBadge(text) {
             if (!text) return '';
             let html = '';
-
-            // 1. แยกป้าย "จอง" ออกมาก่อน
-            if (text.includes('จอง')) {
-                html += `<span class="badge-booking">จอง</span>`;
-                text = text.replace('จอง', '').trim();
-            }
-
-            // 2. ถ้าเหลือข้อความรักษา ให้เลือกสี
+            if (text.includes('จอง')) { html += `<span class="badge-booking">จอง</span>`; text = text.replace('จอง', '').trim(); }
             if (text) {
-                let badgeClass = 'badge-treatment-default'; // สีฟ้ามิ้นต์ (ค่าเดิม)
-
-                if (text.includes('ทับหม้อเกลือ')) {
-                    badgeClass = 'badge-treatment-pink'; // ชมพู
-                } else if (text.includes('นวดตัวส่งเสริม')) {
-                    badgeClass = 'badge-treatment-darkblue'; // น้ำเงินเข้ม
-                } else if (text.includes('นวดรักษา')) {
-                    badgeClass = 'badge-treatment-lightblue'; // ฟ้า/น้ำเงินอ่อน
-                }
-
+                let badgeClass = 'badge-treatment-default';
+                if (text.includes('ทับหม้อเกลือ')) badgeClass = 'badge-treatment-pink';
+                else if (text.includes('นวดตัวส่งเสริม')) badgeClass = 'badge-treatment-darkblue';
+                else if (text.includes('นวดรักษา')) badgeClass = 'badge-treatment-lightblue';
                 html += `<span class="badge-treatment ${badgeClass}">${text}</span>`;
             }
             return html;
         }
 
-        function renderTimeline(data) {
-            const container = document.getElementById('contentArea');
-            container.innerHTML = '';
-            const activeData = data.filter(d => !isJobFinished(d.time)); 
-
-            if(activeData.length === 0) {
-                container.innerHTML = `<div class="text-center p-12 bg-slate-900/50 rounded-2xl"><p class="text-slate-400 text-2xl font-bold">NO ACTIVE QUEUE</p></div>`;
-                return;
-            }
-
-            const groups = activeData.reduce((acc, item) => {
-                if(!acc[item.time]) acc[item.time] = [];
-                acc[item.time].push(item); return acc;
-            }, {});
-
-            Object.keys(groups).sort().forEach(time => {
-                const items = groups[time];
-                let html = `<div class="fade-in"><div class="time-header"><i class="far fa-clock text-cyan-300"></i> ${time} น.</div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">`;
-
-                items.forEach(item => {
-                    let themeClass = 'theme-normal';
-                    let patientName = item.patient;
-                    const bg = (item.bgColor || "").toLowerCase();
-                    const isSheetColor = (bg === '#00ff00' || bg === '#lime' || bg === '#ff00ff' || bg === '#magenta' || bg === '#ffff00' || bg === '#yellow' || bg === '#ef4444' || bg === 'red');
-
-                    if (bg === '#00ff00' || bg === '#lime') themeClass = 'theme-sheet-green';
-                    else if (bg === '#ff00ff' || bg === '#magenta' || bg === '#ea4335') themeClass = 'theme-sheet-pink';
-                    else if (bg === '#ffff00' || bg === '#yellow') themeClass = 'theme-sheet-yellow';
-                    else if (bg === '#ef4444' || bg === 'red') themeClass = 'theme-sheet-red';
-
-                    let statusIcon = '';
-                    if (item.status === 'available') {
-                        if(themeClass === 'theme-normal') themeClass = 'theme-free'; 
-                        patientName = `<span class="text-emerald-300 drop-shadow-md">ว่าง</span>`;
-                        statusIcon = `<i class="fas fa-check-circle text-emerald-400 text-xl"></i>`;
-                    } else if (item.status === 'cancelled') {
-                        themeClass = 'theme-cancel';
-                        if (bg === '#ef4444') themeClass = 'theme-sheet-red'; 
-                        patientName = `<span class="line-through opacity-60">${item.patient}</span>`;
-                        statusIcon = `<i class="fas fa-ban text-slate-400 text-xl"></i>`;
-                    } else {
-                        statusIcon = isSheetColor ? `<i class="fas fa-user text-black opacity-20 text-xl"></i>` : `<i class="fas fa-user text-cyan-200 opacity-30 text-xl"></i>`;
-                        if (bg === '#ef4444') statusIcon = `<i class="fas fa-user-times text-white opacity-50 text-xl"></i>`;
-                    }
-
-                    // Header & Badge Logic
-                    let headerClass = (item.dept === 'TCM') ? 'header-tcm' : 'header-ttm';
-                    const isTCM = (item.dept === 'TCM');
-                    const deptLabel = isTCM ? 'แผนจีน' : 'แผนไทย';
-                    const deptBadgeClass = isTCM ? 'tag-tcm' : 'tag-ttm';
-                    const nameColorClass = isTCM ? 'text-rose-300' : 'text-teal-300';
-                    const deptBadgeHtml = `<span class="dept-tag ${deptBadgeClass}">${deptLabel}</span>`;
-
-                    let contentHtml = '';
-                    if (item.status !== 'available' && item.status !== 'cancelled') {
-                        let txtTreatment = item.treatment || '';
-                        let txtRemarks = item.remarks || '';
-                        
-                        // ★★★ เรียกใช้ formatBadge ใหม่ที่แยกสี ★★★
-                        let row1Html = formatBadge(txtTreatment);
-                        
-                        let row2Html = '';
-                        if (txtRemarks !== '') {
-                            if (item.isRemarkStrike) row2Html = `<div class="mt-1"><span class="strike-text"><i class="fas fa-user-times mr-1"></i>${txtRemarks}</span></div>`;
-                            else row2Html = `<div class="mt-1 text-base font-medium opacity-90">${formatBadge(txtRemarks)}</div>`;
-                        }
-                        contentHtml = `<div class="mt-1 flex flex-col justify-start"><div>${row1Html}</div>${row2Html}</div>`;
-                    } else if (item.status === 'available') {
-                        contentHtml = `<div class="mt-1 opacity-70 text-base">พร้อมให้บริการ</div>`;
-                    } else if (item.status === 'cancelled') {
-                        contentHtml = `<div class="mt-1 font-bold opacity-70">ยกเลิกนัด</div>`;
-                    }
-
-                    const telBtn = (item.tel && item.status !== 'available' && item.status !== 'cancelled') 
-                        ? `<a href="tel:${item.tel}" class="icon-btn"><i class="fas fa-phone"></i></a>` : '';
-                    
-                    const itemDataStr = encodeURIComponent(JSON.stringify(item));
-                    const settingBtn = `<button id="setting-btn-${item.id}" onclick="openStatusModal('${itemDataStr}')" class="icon-btn ml-1 hover:bg-white/20"><i class="fas fa-cog"></i></button>`;
-                    const editBtn = `<button id="edit-btn-${item.id}" onclick="openEditModal('${itemDataStr}')" class="icon-btn ml-1 hover:bg-white/20"><i class="fas fa-pen text-xs"></i></button>`;
-
-                    const roomBadge = item.room ? `<div class="absolute bottom-2 right-2"><span class="room-tag">${item.room}</span></div>` : '';
-
-                    html += `
-                        <div class="h-full">
-                            <div id="card-${item.id}" class="queue-card ${themeClass}">
-                                <div class="card-header-layer ${headerClass}">
-                                    <div class="flex justify-between items-start mb-1">
-                                        <div class="flex items-center gap-2 overflow-hidden">
-                                            <div class="card-time-badge">${item.time}</div>
-                                            <div class="staff-name flex-1 truncate ${nameColorClass}">
-                                                ${item.staff} ${deptBadgeHtml}
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center shrink-0">
-                                            ${telBtn}
-                                            ${editBtn}
-                                            ${settingBtn}
-                                        </div>
-                                    </div>
-                                    <div class="patient-name-container justify-between border-t border-white/10 pt-1">
-                                        <div class="patient-text w-full">${patientName}</div>
-                                        <div class="pl-2">${statusIcon}</div>
-                                    </div>
-                                </div>
-                                <div class="px-2 pb-6">${contentHtml}${roomBadge}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-                html += `</div></div>`;
-                container.innerHTML += html;
-            });
-        }
-
+        // Modal & Save Functions (Same as V.40)
         function openEditModal(cardDataJson) {
             selectedCard = JSON.parse(decodeURIComponent(cardDataJson));
-            
             document.getElementById('edit-val1').value = selectedCard.rawVal1 || "";
             document.getElementById('edit-val2').value = selectedCard.rawVal2 || "";
             document.getElementById('edit-val3').value = selectedCard.rawVal3 || "";
             document.getElementById('edit-val4').value = selectedCard.rawVal4 || "";
-
             const datalist = document.getElementById('treatment-options');
-            if (selectedCard.dept === 'TCM') {
-                datalist.innerHTML = `<option value="ฝังเข็มรักษา"><option value="ครอบแก้ว"><option value="จอง">`;
-            } else {
-                datalist.innerHTML = `<option value="นวดตัวส่งเสริม"><option value="นวดรักษา"><option value="จอง"><option value="ทับหม้อเกลือ">`;
-            }
+            if (selectedCard.dept === 'TCM') datalist.innerHTML = `<option value="ฝังเข็มรักษา"><option value="ครอบแก้ว"><option value="จอง">`;
+            else datalist.innerHTML = `<option value="นวดตัวส่งเสริม"><option value="นวดรักษา"><option value="จอง"><option value="ทับหม้อเกลือ">`;
             document.getElementById('editModal').classList.add('active');
         }
-
-        async function changeStatus(colorCode) {
-            if (!selectedCard) return;
-            const targetId = selectedCard.id; 
-            const targetBtn = document.getElementById(`setting-btn-${targetId}`);
-            const cardEl = document.getElementById(`card-${targetId}`);
-
-            const payload = {
-                date: selectedCard.sheetDate,
-                row: selectedCard.sheetRow,
-                col: selectedCard.sheetCol,
-                color: colorCode,
-                mode: 'status'
-            };
-
-            closeModal('statusModal');
-            
-            if(cardEl) {
-                cardEl.classList.remove('theme-sheet-green', 'theme-sheet-pink', 'theme-sheet-yellow', 'theme-sheet-red', 'theme-normal', 'theme-cancel');
-                if(colorCode === '#00ff00') cardEl.classList.add('theme-sheet-green');
-                else if(colorCode === '#ff00ff') cardEl.classList.add('theme-sheet-pink');
-                else if(colorCode === '#ffff00') cardEl.classList.add('theme-sheet-yellow');
-                else if(colorCode === 'cancel') cardEl.classList.add('theme-sheet-red'); 
-                else if(colorCode === 'clear') cardEl.classList.add('theme-normal');
-                cardEl.classList.add('card-loading');
-            }
-            if(targetBtn) targetBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-
-            try {
-                await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                setTimeout(() => fetchData(false), 2000); 
-            } catch (e) {
-                alert('Connection Error');
-                if(targetBtn) targetBtn.innerHTML = '<i class="fas fa-cog"></i>';
-                if(cardEl) cardEl.classList.remove('card-loading');
-            }
+        function openStatusModal(cardDataJson) { selectedCard = JSON.parse(decodeURIComponent(cardDataJson)); document.getElementById('statusModal').classList.add('active'); }
+        function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); selectedCard = null; }
+        
+        async function changeStatus(colorCode) { /* ... (Code เดิม) ... */ saveAction(colorCode, 'status'); }
+        async function saveEditData() {
+            const v1=document.getElementById('edit-val1').value, v2=document.getElementById('edit-val2').value, v3=document.getElementById('edit-val3').value, v4=document.getElementById('edit-val4').value;
+            saveAction({val1:v1, val2:v2, val3:v3, val4:v4}, 'edit_data');
         }
 
-        async function saveEditData() {
+        async function saveAction(data, mode) {
             if (!selectedCard) return;
             const targetId = selectedCard.id;
-            const editBtn = document.getElementById(`edit-btn-${targetId}`);
             const cardEl = document.getElementById(`card-${targetId}`);
+            
+            let payload = { date: selectedCard.sheetDate, row: selectedCard.sheetRow, col: selectedCard.sheetCol, mode: mode };
+            if(mode === 'status') { payload.color = data; closeModal('statusModal'); }
+            else { payload.val1=data.val1; payload.val2=data.val2; payload.val3=data.val3; payload.val4=data.val4; closeModal('editModal'); }
 
-            const val1 = document.getElementById('edit-val1').value;
-            const val2 = document.getElementById('edit-val2').value;
-            const val3 = document.getElementById('edit-val3').value;
-            const val4 = document.getElementById('edit-val4').value;
-
-            const payload = {
-                date: selectedCard.sheetDate,
-                row: selectedCard.sheetRow,
-                col: selectedCard.sheetCol,
-                mode: 'edit_data',
-                val1: val1, val2: val2, val3: val3, val4: val4
-            };
-
-            closeModal('editModal');
             if(cardEl) cardEl.classList.add('card-loading');
-            if(editBtn) editBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-
-            try {
-                await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                setTimeout(() => fetchData(false), 2000);
-            } catch (e) {
-                alert('บันทึกไม่สำเร็จ');
-                if(cardEl) cardEl.classList.remove('card-loading');
-                if(editBtn) editBtn.innerHTML = '<i class="fas fa-pen"></i>';
-            }
-        }
-
-        function openStatusModal(cardDataJson) {
-            selectedCard = JSON.parse(decodeURIComponent(cardDataJson));
-            document.getElementById('statusModal').classList.add('active');
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
-            selectedCard = null;
-        }
-
-        function setupFilter(data) {
-            const select = document.getElementById('staffFilter');
-            const current = select.value;
-            const staffSet = new Set(data.map(d => d.staff));
-            while (select.options.length > 1) select.remove(1);
-            Array.from(staffSet).sort().forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s; opt.text = `📡 คิวของ: ${s}`; select.add(opt);
-            });
-            select.value = current;
-        }
-        function filterData() {
-            const who = document.getElementById('staffFilter').value;
-            if(who === 'all') renderTimeline(allData);
-            else renderTimeline(allData.filter(d => d.staff === who));
+            try { await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); setTimeout(() => fetchData(false), 1500); } 
+            catch (e) { alert('Connection Error'); if(cardEl) cardEl.classList.remove('card-loading'); }
         }
         function isJobFinished(timeStr) { return false; }
     </script>
