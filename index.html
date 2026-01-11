@@ -3,86 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sadao Queue V41 (Scheduler Grid)</title>
+    <title>Sadao Queue V42 (Multi-Queue Grid)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* --- Core Theme --- */
-        body { font-family: 'Sarabun', sans-serif; background-color: #0b1021; color: #e2e8f0; height: 100vh; overflow: hidden; /* ล็อค Body ให้ Scroll ใน Grid แทน */ }
-        
-        /* Background Stars */
+        /* --- Styles เดิม --- */
+        body { font-family: 'Sarabun', sans-serif; background-color: #0b1021; color: #e2e8f0; height: 100vh; overflow: hidden; }
         .bg-stars { position: fixed; inset: 0; z-index: -1; background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px), radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px); background-size: 550px 550px, 350px 350px; animation: starMove 120s linear infinite; pointer-events: none; }
         @keyframes starMove { from { background-position: 0 0; } to { background-position: 550px 550px; } }
 
-        /* --- SCHEDULER GRID SYSTEM (หัวใจของ V.41) --- */
+        /* SCHEDULER GRID */
         .scheduler-wrapper {
-            display: grid;
-            overflow: auto;
-            height: calc(100vh - 140px); /* ความสูงเต็มจอ ลบ Header/Filter */
-            position: relative;
-            /* Grid จะถูกกำหนด Columns Dynamic โดย JS */
-            grid-template-rows: 60px auto; /* แถวแรกเป็น Header */
-            gap: 1px; /* เส้นตาราง */
-            background: rgba(255,255,255,0.05); /* สีเส้นตาราง */
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
+            display: grid; overflow: auto; height: calc(100vh - 140px); position: relative;
+            grid-template-rows: 60px auto; gap: 1px; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-
-        /* 1. มุมซ้ายบนสุด (ว่างเปล่า/โลโก้) */
-        .sticky-corner {
-            position: sticky; left: 0; top: 0; z-index: 50;
-            background: #0f172a; /* พื้นหลังทึบกันมองทะลุ */
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            border-right: 1px solid rgba(255,255,255,0.1);
-            display: flex; align-items: center; justify-content: center;
-            font-family: 'Rajdhani', sans-serif; font-weight: bold; color: #22d3ee; font-size: 1.2rem;
-        }
-
-        /* 2. หัวตารางด้านบน (ชื่อหมอ) - เลื่อนซ้ายขวาได้ แต่ติดด้านบน */
-        .sticky-top {
-            position: sticky; top: 0; z-index: 40;
-            background: #1e293b; 
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding: 8px; display: flex; align-items: center; justify-content: center;
-            text-align: center; font-weight: bold; font-size: 1.1rem;
-            white-space: nowrap;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-        }
-        .header-ttm { color: #2dd4bf; border-top: 3px solid #2dd4bf; }
-        .header-tcm { color: #f87171; border-top: 3px solid #f87171; }
-
-        /* 3. หัวตารางด้านซ้าย (เวลา) - เลื่อนขึ้นลงได้ แต่ติดด้านซ้าย */
-        .sticky-left {
-            position: sticky; left: 0; z-index: 30;
-            background: #0f172a;
-            border-right: 1px solid rgba(255,255,255,0.1);
-            display: flex; align-items: center; justify-content: center; flex-direction: column;
-            font-family: 'Rajdhani', sans-serif; font-size: 1.2rem; font-weight: 700; color: #e2e8f0;
-            width: 90px; /* ความกว้างคงที่ของช่องเวลา */
-        }
-        .time-sub { font-size: 0.8rem; opacity: 0.6; font-weight: normal; margin-top: -2px; }
-
-        /* 4. ช่องใส่การ์ด (Cell) */
-        .grid-cell {
-            background: rgba(15, 23, 42, 0.6);
-            padding: 8px;
-            min-width: 280px; /* ความกว้างขั้นต่ำของการ์ด */
-            min-height: 160px; /* ความสูงขั้นต่ำ */
-            display: flex; flex-direction: column;
-        }
+        .sticky-corner { position: sticky; left: 0; top: 0; z-index: 50; background: #0f172a; border-bottom: 1px solid rgba(255,255,255,0.1); border-right: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-family: 'Rajdhani', sans-serif; font-weight: bold; color: #22d3ee; font-size: 1.2rem; }
+        .sticky-top { position: sticky; top: 0; z-index: 40; background: #1e293b; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-weight: bold; font-size: 1rem; white-space: nowrap; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); }
+        .sticky-left { position: sticky; left: 0; z-index: 30; background: #0f172a; border-right: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; flex-direction: column; font-family: 'Rajdhani', sans-serif; font-size: 1.2rem; font-weight: 700; color: #e2e8f0; width: 90px; }
+        .grid-cell { background: rgba(15, 23, 42, 0.6); padding: 8px; min-width: 280px; min-height: 160px; display: flex; flex-direction: column; }
         .grid-cell:hover { background: rgba(30, 41, 59, 0.8); }
 
-        /* --- CARD STYLE (Compact for Grid) --- */
+        /* Header Specifics */
+        .header-ttm { color: #2dd4bf; border-top: 3px solid #2dd4bf; }
+        .header-tcm { color: #f87171; border-top: 3px solid #f87171; }
+        .queue-badge { font-size: 0.7rem; background: rgba(255,255,255,0.1); padding: 1px 6px; border-radius: 4px; margin-top: 2px; font-weight: normal; opacity: 0.8; }
+
+        /* CARD & BADGES (Styles from V.40) */
         .queue-card { border-radius: 12px; padding: 10px; position: relative; transition: all 0.2s ease; display: flex; flex-direction: column; height: 100%; border: 1px solid rgba(255, 255, 255, 0.08); overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
         .queue-card:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.3); }
         .card-loading { animation: cardPulse 1.5s infinite alternate; }
         @keyframes cardPulse { 0% { box-shadow: 0 0 10px rgba(255,255,255,0.1); } 100% { box-shadow: 0 0 25px rgba(255,255,255,0.4); filter: brightness(1.1); } }
 
-        /* Themes & Badges (เหมือนเดิม) */
+        /* Themes */
         .theme-normal { background: rgba(30, 41, 59, 0.95); border-left: 4px solid #94a3b8; }
         .theme-free { background: rgba(6, 78, 59, 0.7); border: 1px solid #10b981; border-left: 4px solid #10b981; color: #d1fae5; }
         .theme-cancel { background: #334155; color: #94a3b8; border-left: 4px solid #64748b; opacity: 0.9; }
@@ -93,7 +50,7 @@
 
         .patient-text { font-size: 1.2rem; font-weight: 700; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 4px; }
         
-        /* Badges */
+        /* Colored Badges */
         .badge-treatment { display: inline-block; padding: 2px 8px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         .badge-treatment-pink { background: linear-gradient(135deg, #ec4899, #be185d); color: white; border: 1px solid #fbcfe8; }
         .badge-treatment-darkblue { background: linear-gradient(135deg, #1e3a8a, #172554); color: white; border: 1px solid #60a5fa; }
@@ -101,25 +58,19 @@
         .badge-treatment-default { background: rgba(6, 182, 212, 0.15); border: 1px solid #06b6d4; color: #67e8f9; }
         .badge-booking { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(145deg, #fb923c, #c2410c); color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 800; box-shadow: 0 2px 0 #9a3412; margin-right: 5px; border: 1px solid rgba(255,255,255,0.2); }
 
-        /* UI Elements */
         .icon-btn { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; transition: all 0.2s; cursor: pointer; }
-        .icon-btn:hover { transform: scale(1.1); background: rgba(255,255,255,0.4); }
         .theme-sheet-yellow .icon-btn { color: #422006; border-color: rgba(66, 32, 6, 0.2); background: rgba(255,255,255,0.4); }
         
-        /* Modal (คงเดิม) */
         .modal-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: flex; justify-content: center; items-center; transition: opacity 0.3s; opacity: 0; pointer-events: none; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-box { background: #1e293b; border: 1px solid #475569; border-radius: 16px; padding: 20px; width: 90%; max-width: 380px; transform: scale(0.9); transition: transform 0.3s; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
         .modal-overlay.active .modal-box { transform: scale(1); }
-        
         .status-btn { width: 100%; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 10px; transition: transform 0.1s; border: 2px solid transparent; margin-bottom: 8px; }
-        .status-btn:active { transform: scale(0.98); }
         .btn-green { background: #22c55e; color: #022c22; border-color: #86efac; }
         .btn-pink { background: #e879f9; color: #4a044e; border-color: #fbcfe8; }
         .btn-yellow { background: #facc15; color: #422006; border-color: #fde047; }
         .btn-red { background: #ef4444; color: white; border-color: #f87171; }
         .btn-white { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
-        
         .input-group label { display: block; color: #94a3b8; font-size: 0.85rem; margin-bottom: 4px; }
         .input-group input { width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 10px; border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.2s; }
         .save-btn { width: 100%; background: linear-gradient(90deg, #06b6d4, #3b82f6); color: white; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 1.1rem; margin-top: 10px; }
@@ -136,7 +87,7 @@
                     <i class="fas fa-table text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-extrabold text-white tracking-wide">ตารางคิวรวม</h1>
+                    <h1 class="text-xl font-extrabold text-white tracking-wide">ตารางคิวรวม (4 คิว/หมอจีน)</h1>
                     <div class="flex items-center gap-2 text-cyan-400 text-[10px] font-mono mt-0.5">
                         <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                         <span id="lastUpdate">INITIALIZING...</span>
@@ -188,9 +139,7 @@
     </div>
 
     <script>
-        // ⚠️ Backend V.38 URL
         const API_URL = "https://script.google.com/macros/s/AKfycbx7biDk5VGc0xkjAxLiN3OQXKoRU5kok144Z9TTQeSw4EVUD5XWeFEuPOCK04mR5mXj5A/exec";
-        
         let allData = [];
         let selectedCard = null; 
 
@@ -215,62 +164,81 @@
             finally { if(refreshIcon) refreshIcon.classList.remove('spin-slow'); }
         }
 
-        // ★★★ RENDER SCHEDULER (TABLE VIEW) ★★★
+        // ★★★ RENDER SCHEDULER (UPDATED V.42) ★★★
         function renderScheduler(data) {
             const container = document.getElementById('schedulerContainer');
             if(data.length === 0) { container.innerHTML = `<div class="p-10 text-white">No Data</div>`; return; }
 
-            // 1. แยกแยะข้อมูล Staff และ Time ทั้งหมด
-            const staffMap = new Map(); // เก็บชื่อหมอและแผนก
-            const timeSet = new Set();  // เก็บเวลาทั้งหมด
+            // 1. แยกแยะคอลัมน์โดยใช้ 'realColIndex' (ไม่ใช่แค่ชื่อ)
+            const columnMap = new Map(); 
+            const timeSet = new Set();  
 
             data.forEach(item => {
-                if(!staffMap.has(item.staff)) {
-                    staffMap.set(item.staff, item.dept);
+                if(!columnMap.has(item.realColIndex)) {
+                    columnMap.set(item.realColIndex, {
+                        name: item.staff,
+                        dept: item.dept,
+                        id: item.realColIndex
+                    });
                 }
                 timeSet.add(item.time);
             });
 
-            // เรียงชื่อหมอ (ไทยมาก่อน จีนทีหลัง หรือเรียงตามตัวอักษร)
-            const staffList = Array.from(staffMap.keys()).sort((a,b) => {
-                // ถ้าอยากแยกแผนกชัดเจน ให้เช็ค dept ก่อน
-                if(staffMap.get(a) === 'TTM' && staffMap.get(b) === 'TCM') return -1;
-                if(staffMap.get(a) === 'TCM' && staffMap.get(b) === 'TTM') return 1;
-                return a.localeCompare(b);
+            // 2. จัดเรียงคอลัมน์: เอาแผนไทยไว้ก่อน แล้วค่อยแผนจีน
+            let sortedCols = Array.from(columnMap.values()).sort((a,b) => {
+                // แยกแผนก
+                if(a.dept === 'TTM' && b.dept === 'TCM') return -1;
+                if(a.dept === 'TCM' && b.dept === 'TTM') return 1;
+                // ถ้าแผนกเดียวกัน เรียงตามลำดับคอลัมน์
+                return a.id - b.id;
             });
 
-            // เรียงเวลา
+            // 3. ใส่เลขคิวให้กับชื่อที่ซ้ำกัน (เช่น พจ.พรเพชร 1, 2, 3, 4)
+            const nameCounts = {};
+            sortedCols.forEach(col => {
+                if (!nameCounts[col.name]) nameCounts[col.name] = 0;
+                nameCounts[col.name]++;
+                // ถ้ามีชื่อนี้มากกว่า 1 คอลัมน์ ให้แปะป้าย (คิว X)
+                col.displayName = col.name; 
+            });
+            // Loop อีกรอบเพื่อเติมเลข (เฉพาะคนที่มี > 1 คอลัมน์)
+            const currentCount = {};
+            sortedCols.forEach(col => {
+                if(nameCounts[col.name] > 1) {
+                    if(!currentCount[col.name]) currentCount[col.name] = 0;
+                    currentCount[col.name]++;
+                    col.queueLabel = `<span class="queue-badge">คิว ${currentCount[col.name]}</span>`;
+                } else {
+                    col.queueLabel = '';
+                }
+            });
+
             const timeList = Array.from(timeSet).sort();
 
-            // 2. ตั้งค่า CSS Grid Columns (ช่องเวลา 1 ช่อง + ช่องหมอ N ช่อง)
-            container.style.gridTemplateColumns = `90px repeat(${staffList.length}, minmax(280px, 1fr))`;
+            // Set Grid Layout
+            container.style.gridTemplateColumns = `90px repeat(${sortedCols.length}, minmax(280px, 1fr))`;
 
-            let html = '';
+            let html = `<div class="sticky-corner"><i class="far fa-clock"></i></div>`;
 
-            // --- ROW 1: HEADER ---
-            // 1.1 Sticky Corner (บนซ้ายสุด)
-            html += `<div class="sticky-corner"><i class="far fa-clock"></i></div>`;
-
-            // 1.2 Staff Headers (Sticky Top)
-            staffList.forEach(staff => {
-                const dept = staffMap.get(staff);
-                const headerClass = (dept === 'TCM') ? 'header-tcm' : 'header-ttm';
-                const icon = (dept === 'TCM') ? '<i class="fas fa-yin-yang ml-1 opacity-70"></i>' : '<i class="fas fa-spa ml-1 opacity-70"></i>';
-                html += `<div class="sticky-top ${headerClass}">${staff} ${icon}</div>`;
+            // Header
+            sortedCols.forEach(col => {
+                const headerClass = (col.dept === 'TCM') ? 'header-tcm' : 'header-ttm';
+                const icon = (col.dept === 'TCM') ? '<i class="fas fa-yin-yang ml-1 opacity-70"></i>' : '<i class="fas fa-spa ml-1 opacity-70"></i>';
+                html += `
+                    <div class="sticky-top ${headerClass}">
+                        <div>${col.displayName} ${icon}</div>
+                        ${col.queueLabel}
+                    </div>`;
             });
 
-            // --- DATA ROWS ---
+            // Data Rows
             timeList.forEach(time => {
-                // 2.1 Time Label (Sticky Left)
                 html += `<div class="sticky-left">${time}<span class="time-sub">น.</span></div>`;
-
-                // 2.2 Card Cells
-                staffList.forEach(staff => {
-                    // หาการ์ดที่ตรงกับ (Time + Staff)
-                    const item = data.find(d => d.time === time && d.staff === staff);
-                    
+                sortedCols.forEach(col => {
+                    // หาการ์ดที่ตรงกับเวลา และ คอลัมน์จริง
+                    const item = data.find(d => d.time === time && d.realColIndex === col.id);
                     html += `<div class="grid-cell">`;
-                    if (item) {
+                    if (item && item.staff) { // ต้องมีชื่อ Staff ด้วย (ป้องกันข้อมูลหลอก)
                         html += createCardHtml(item);
                     }
                     html += `</div>`;
@@ -280,7 +248,6 @@
             container.innerHTML = html;
         }
 
-        // ฟังก์ชันสร้าง HTML การ์ดย่อย (เอามาจาก V.40 แต่ตัด Header ออก เพราะมี Header ตารางแล้ว)
         function createCardHtml(item) {
             let themeClass = 'theme-normal';
             let patientName = item.patient;
@@ -312,7 +279,6 @@
             const editBtn = `<button id="edit-btn-${item.id}" onclick="openEditModal('${itemDataStr}')" class="icon-btn ml-1 hover:bg-white/20"><i class="fas fa-pen text-[10px]"></i></button>`;
             const telBtn = (item.tel && item.status !== 'available' && item.status !== 'cancelled') ? `<a href="tel:${item.tel}" class="icon-btn"><i class="fas fa-phone text-xs"></i></a>` : '';
 
-            // Content
             let contentHtml = '';
             if (item.status !== 'available' && item.status !== 'cancelled') {
                 let txtTreatment = item.treatment || '';
@@ -361,7 +327,6 @@
             return html;
         }
 
-        // Modal & Save Functions (Same as V.40)
         function openEditModal(cardDataJson) {
             selectedCard = JSON.parse(decodeURIComponent(cardDataJson));
             document.getElementById('edit-val1').value = selectedCard.rawVal1 || "";
@@ -376,7 +341,7 @@
         function openStatusModal(cardDataJson) { selectedCard = JSON.parse(decodeURIComponent(cardDataJson)); document.getElementById('statusModal').classList.add('active'); }
         function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); selectedCard = null; }
         
-        async function changeStatus(colorCode) { /* ... (Code เดิม) ... */ saveAction(colorCode, 'status'); }
+        async function changeStatus(colorCode) { saveAction(colorCode, 'status'); }
         async function saveEditData() {
             const v1=document.getElementById('edit-val1').value, v2=document.getElementById('edit-val2').value, v3=document.getElementById('edit-val3').value, v4=document.getElementById('edit-val4').value;
             saveAction({val1:v1, val2:v2, val3:v3, val4:v4}, 'edit_data');
@@ -386,11 +351,9 @@
             if (!selectedCard) return;
             const targetId = selectedCard.id;
             const cardEl = document.getElementById(`card-${targetId}`);
-            
             let payload = { date: selectedCard.sheetDate, row: selectedCard.sheetRow, col: selectedCard.sheetCol, mode: mode };
             if(mode === 'status') { payload.color = data; closeModal('statusModal'); }
             else { payload.val1=data.val1; payload.val2=data.val2; payload.val3=data.val3; payload.val4=data.val4; closeModal('editModal'); }
-
             if(cardEl) cardEl.classList.add('card-loading');
             try { await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); setTimeout(() => fetchData(false), 1500); } 
             catch (e) { alert('Connection Error'); if(cardEl) cardEl.classList.remove('card-loading'); }
