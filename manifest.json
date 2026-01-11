@@ -1,0 +1,21 @@
+{
+  "name": "Sadao Queue",
+  "short_name": "SadaoQ",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0b1021",
+  "theme_color": "#0b1021",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/poppingaeiou/Staff/main/%E0%B9%81%E0%B8%AD%E0%B8%9E%E0%B9%81%E0%B8%9C%E0%B8%99%E0%B8%81.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/poppingaeiou/Staff/main/%E0%B9%81%E0%B8%AD%E0%B8%9E%E0%B9%81%E0%B8%9C%E0%B8%99%E0%B8%81.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
