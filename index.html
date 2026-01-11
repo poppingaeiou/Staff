@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sadao Queue V39 (Dynamic Dropdown)</title>
+    <title>Sadao Queue V40 (Treatment Colors)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
@@ -49,9 +49,24 @@
         .theme-sheet-yellow .card-time-badge { color: #422006; border-color: rgba(66, 32, 6, 0.2); }
 
         .badge-booking { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(145deg, #fb923c, #c2410c); color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 800; box-shadow: 0 2px 0 #9a3412; margin-right: 5px; margin-bottom: 2px; transform: translateY(-1px); border: 1px solid rgba(255,255,255,0.2); }
-        .badge-treatment { display: inline-block; padding: 2px 8px; border-radius: 6px; font-weight: 600; font-size: 0.95rem; }
-        .theme-normal .badge-treatment { background: rgba(6, 182, 212, 0.15); border: 1px solid #06b6d4; color: #67e8f9; }
-        .theme-sheet-green .badge-treatment, .theme-sheet-pink .badge-treatment, .theme-sheet-yellow .badge-treatment, .theme-sheet-red .badge-treatment { background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.3); color: inherit; }
+        
+        /* ★★★ TREATMENT BADGES (สีป้ายรายการรักษา) ★★★ */
+        .badge-treatment { display: inline-block; padding: 2px 8px; border-radius: 6px; font-weight: 600; font-size: 0.95rem; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        
+        /* 1. ทับหม้อเกลือ (สีชมพู) */
+        .badge-treatment-pink { background: linear-gradient(135deg, #ec4899, #be185d); color: white; border: 1px solid #fbcfe8; }
+        
+        /* 2. นวดตัวส่งเสริม (สีน้ำเงินเข้ม) */
+        .badge-treatment-darkblue { background: linear-gradient(135deg, #1e3a8a, #172554); color: white; border: 1px solid #60a5fa; }
+        
+        /* 3. นวดรักษา (สีน้ำเงินฟ้า) */
+        .badge-treatment-lightblue { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; border: 1px solid #bae6fd; }
+        
+        /* 4. ค่าเริ่มต้น (สีเขียวมิ้นต์เดิม) */
+        .badge-treatment-default { background: rgba(6, 182, 212, 0.15); border: 1px solid #06b6d4; color: #67e8f9; }
+        
+        /* กรณีอยู่บนการ์ดสี (Override สีพื้นให้กลืนกัน) */
+        .theme-sheet-green .badge-treatment, .theme-sheet-pink .badge-treatment, .theme-sheet-yellow .badge-treatment, .theme-sheet-red .badge-treatment { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
         .strike-text { color: #fca5a5; text-decoration: line-through; font-weight: 700; font-size: 0.95rem; background: rgba(0,0,0,0.5); padding: 1px 6px; border-radius: 4px; }
         .theme-sheet-yellow .strike-text { color: #991b1b; background: rgba(255,255,255,0.5); }
@@ -163,7 +178,7 @@
     </div>
 
     <script>
-        // ⚠️ URL เดิม (V.38)
+        // ⚠️ Updated URL (V.38 - Backend ตัวเดิม)
         const API_URL = "https://script.google.com/macros/s/AKfycbx7biDk5VGc0xkjAxLiN3OQXKoRU5kok144Z9TTQeSw4EVUD5XWeFEuPOCK04mR5mXj5A/exec";
         
         let allData = [];
@@ -191,34 +206,162 @@
             finally { if(refreshIcon) refreshIcon.classList.remove('spin-slow'); }
         }
 
-        // --- Logic Dropdown เปลี่ยนตามแผนก ---
+        // --- Logic สร้างป้ายพร้อมสี (Updated V.40) ---
+        function formatBadge(text) {
+            if (!text) return '';
+            let html = '';
+
+            // 1. แยกป้าย "จอง" ออกมาก่อน
+            if (text.includes('จอง')) {
+                html += `<span class="badge-booking">จอง</span>`;
+                text = text.replace('จอง', '').trim();
+            }
+
+            // 2. ถ้าเหลือข้อความรักษา ให้เลือกสี
+            if (text) {
+                let badgeClass = 'badge-treatment-default'; // สีฟ้ามิ้นต์ (ค่าเดิม)
+
+                if (text.includes('ทับหม้อเกลือ')) {
+                    badgeClass = 'badge-treatment-pink'; // ชมพู
+                } else if (text.includes('นวดตัวส่งเสริม')) {
+                    badgeClass = 'badge-treatment-darkblue'; // น้ำเงินเข้ม
+                } else if (text.includes('นวดรักษา')) {
+                    badgeClass = 'badge-treatment-lightblue'; // ฟ้า/น้ำเงินอ่อน
+                }
+
+                html += `<span class="badge-treatment ${badgeClass}">${text}</span>`;
+            }
+            return html;
+        }
+
+        function renderTimeline(data) {
+            const container = document.getElementById('contentArea');
+            container.innerHTML = '';
+            const activeData = data.filter(d => !isJobFinished(d.time)); 
+
+            if(activeData.length === 0) {
+                container.innerHTML = `<div class="text-center p-12 bg-slate-900/50 rounded-2xl"><p class="text-slate-400 text-2xl font-bold">NO ACTIVE QUEUE</p></div>`;
+                return;
+            }
+
+            const groups = activeData.reduce((acc, item) => {
+                if(!acc[item.time]) acc[item.time] = [];
+                acc[item.time].push(item); return acc;
+            }, {});
+
+            Object.keys(groups).sort().forEach(time => {
+                const items = groups[time];
+                let html = `<div class="fade-in"><div class="time-header"><i class="far fa-clock text-cyan-300"></i> ${time} น.</div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">`;
+
+                items.forEach(item => {
+                    let themeClass = 'theme-normal';
+                    let patientName = item.patient;
+                    const bg = (item.bgColor || "").toLowerCase();
+                    const isSheetColor = (bg === '#00ff00' || bg === '#lime' || bg === '#ff00ff' || bg === '#magenta' || bg === '#ffff00' || bg === '#yellow' || bg === '#ef4444' || bg === 'red');
+
+                    if (bg === '#00ff00' || bg === '#lime') themeClass = 'theme-sheet-green';
+                    else if (bg === '#ff00ff' || bg === '#magenta' || bg === '#ea4335') themeClass = 'theme-sheet-pink';
+                    else if (bg === '#ffff00' || bg === '#yellow') themeClass = 'theme-sheet-yellow';
+                    else if (bg === '#ef4444' || bg === 'red') themeClass = 'theme-sheet-red';
+
+                    let statusIcon = '';
+                    if (item.status === 'available') {
+                        if(themeClass === 'theme-normal') themeClass = 'theme-free'; 
+                        patientName = `<span class="text-emerald-300 drop-shadow-md">ว่าง</span>`;
+                        statusIcon = `<i class="fas fa-check-circle text-emerald-400 text-xl"></i>`;
+                    } else if (item.status === 'cancelled') {
+                        themeClass = 'theme-cancel';
+                        if (bg === '#ef4444') themeClass = 'theme-sheet-red'; 
+                        patientName = `<span class="line-through opacity-60">${item.patient}</span>`;
+                        statusIcon = `<i class="fas fa-ban text-slate-400 text-xl"></i>`;
+                    } else {
+                        statusIcon = isSheetColor ? `<i class="fas fa-user text-black opacity-20 text-xl"></i>` : `<i class="fas fa-user text-cyan-200 opacity-30 text-xl"></i>`;
+                        if (bg === '#ef4444') statusIcon = `<i class="fas fa-user-times text-white opacity-50 text-xl"></i>`;
+                    }
+
+                    // Header & Badge Logic
+                    let headerClass = (item.dept === 'TCM') ? 'header-tcm' : 'header-ttm';
+                    const isTCM = (item.dept === 'TCM');
+                    const deptLabel = isTCM ? 'แผนจีน' : 'แผนไทย';
+                    const deptBadgeClass = isTCM ? 'tag-tcm' : 'tag-ttm';
+                    const nameColorClass = isTCM ? 'text-rose-300' : 'text-teal-300';
+                    const deptBadgeHtml = `<span class="dept-tag ${deptBadgeClass}">${deptLabel}</span>`;
+
+                    let contentHtml = '';
+                    if (item.status !== 'available' && item.status !== 'cancelled') {
+                        let txtTreatment = item.treatment || '';
+                        let txtRemarks = item.remarks || '';
+                        
+                        // ★★★ เรียกใช้ formatBadge ใหม่ที่แยกสี ★★★
+                        let row1Html = formatBadge(txtTreatment);
+                        
+                        let row2Html = '';
+                        if (txtRemarks !== '') {
+                            if (item.isRemarkStrike) row2Html = `<div class="mt-1"><span class="strike-text"><i class="fas fa-user-times mr-1"></i>${txtRemarks}</span></div>`;
+                            else row2Html = `<div class="mt-1 text-base font-medium opacity-90">${formatBadge(txtRemarks)}</div>`;
+                        }
+                        contentHtml = `<div class="mt-1 flex flex-col justify-start"><div>${row1Html}</div>${row2Html}</div>`;
+                    } else if (item.status === 'available') {
+                        contentHtml = `<div class="mt-1 opacity-70 text-base">พร้อมให้บริการ</div>`;
+                    } else if (item.status === 'cancelled') {
+                        contentHtml = `<div class="mt-1 font-bold opacity-70">ยกเลิกนัด</div>`;
+                    }
+
+                    const telBtn = (item.tel && item.status !== 'available' && item.status !== 'cancelled') 
+                        ? `<a href="tel:${item.tel}" class="icon-btn"><i class="fas fa-phone"></i></a>` : '';
+                    
+                    const itemDataStr = encodeURIComponent(JSON.stringify(item));
+                    const settingBtn = `<button id="setting-btn-${item.id}" onclick="openStatusModal('${itemDataStr}')" class="icon-btn ml-1 hover:bg-white/20"><i class="fas fa-cog"></i></button>`;
+                    const editBtn = `<button id="edit-btn-${item.id}" onclick="openEditModal('${itemDataStr}')" class="icon-btn ml-1 hover:bg-white/20"><i class="fas fa-pen text-xs"></i></button>`;
+
+                    const roomBadge = item.room ? `<div class="absolute bottom-2 right-2"><span class="room-tag">${item.room}</span></div>` : '';
+
+                    html += `
+                        <div class="h-full">
+                            <div id="card-${item.id}" class="queue-card ${themeClass}">
+                                <div class="card-header-layer ${headerClass}">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <div class="flex items-center gap-2 overflow-hidden">
+                                            <div class="card-time-badge">${item.time}</div>
+                                            <div class="staff-name flex-1 truncate ${nameColorClass}">
+                                                ${item.staff} ${deptBadgeHtml}
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center shrink-0">
+                                            ${telBtn}
+                                            ${editBtn}
+                                            ${settingBtn}
+                                        </div>
+                                    </div>
+                                    <div class="patient-name-container justify-between border-t border-white/10 pt-1">
+                                        <div class="patient-text w-full">${patientName}</div>
+                                        <div class="pl-2">${statusIcon}</div>
+                                    </div>
+                                </div>
+                                <div class="px-2 pb-6">${contentHtml}${roomBadge}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div></div>`;
+                container.innerHTML += html;
+            });
+        }
+
         function openEditModal(cardDataJson) {
             selectedCard = JSON.parse(decodeURIComponent(cardDataJson));
             
-            // 1. ใส่ข้อมูลเดิม
             document.getElementById('edit-val1').value = selectedCard.rawVal1 || "";
             document.getElementById('edit-val2').value = selectedCard.rawVal2 || "";
             document.getElementById('edit-val3').value = selectedCard.rawVal3 || "";
             document.getElementById('edit-val4').value = selectedCard.rawVal4 || "";
 
-            // 2. ★★★ เช็คแผนก แล้วเปลี่ยนตัวเลือกใน Datalist ★★★
             const datalist = document.getElementById('treatment-options');
             if (selectedCard.dept === 'TCM') {
-                // แผนจีน
-                datalist.innerHTML = `
-                    <option value="ฝังเข็มรักษา">
-                    <option value="ครอบแก้ว">
-                    <option value="จอง">
-                `;
+                datalist.innerHTML = `<option value="ฝังเข็มรักษา"><option value="ครอบแก้ว"><option value="จอง">`;
             } else {
-                // แผนไทย (ค่า Default)
-                datalist.innerHTML = `
-                    <option value="นวดตัวส่งเสริม">
-                    <option value="นวดรักษา">
-                    <option value="จอง">
-                `;
+                datalist.innerHTML = `<option value="นวดตัวส่งเสริม"><option value="นวดรักษา"><option value="จอง"><option value="ทับหม้อเกลือ">`;
             }
-
             document.getElementById('editModal').classList.add('active');
         }
 
@@ -319,125 +462,6 @@
             else renderTimeline(allData.filter(d => d.staff === who));
         }
         function isJobFinished(timeStr) { return false; }
-        function formatBadge(text) {
-            if (!text) return '';
-            if (text.includes('จอง')) {
-                const cleanText = text.replace('จอง', '').trim();
-                return `<span class="badge-booking">จอง</span>` + (cleanText ? `<span class="badge-treatment">${cleanText}</span>` : '');
-            }
-            return `<span class="badge-treatment">${text}</span>`;
-        }
-
-        function renderTimeline(data) {
-            const container = document.getElementById('contentArea');
-            container.innerHTML = '';
-            const activeData = data.filter(d => !isJobFinished(d.time)); 
-
-            if(activeData.length === 0) {
-                container.innerHTML = `<div class="text-center p-12 bg-slate-900/50 rounded-2xl"><p class="text-slate-400 text-2xl font-bold">NO ACTIVE QUEUE</p></div>`;
-                return;
-            }
-
-            const groups = activeData.reduce((acc, item) => {
-                if(!acc[item.time]) acc[item.time] = [];
-                acc[item.time].push(item); return acc;
-            }, {});
-
-            Object.keys(groups).sort().forEach(time => {
-                const items = groups[time];
-                let html = `<div class="fade-in"><div class="time-header"><i class="far fa-clock text-cyan-300"></i> ${time} น.</div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">`;
-
-                items.forEach(item => {
-                    let themeClass = 'theme-normal';
-                    let patientName = item.patient;
-                    const bg = (item.bgColor || "").toLowerCase();
-                    const isSheetColor = (bg === '#00ff00' || bg === '#lime' || bg === '#ff00ff' || bg === '#magenta' || bg === '#ffff00' || bg === '#yellow' || bg === '#ef4444' || bg === 'red');
-
-                    if (bg === '#00ff00' || bg === '#lime') themeClass = 'theme-sheet-green';
-                    else if (bg === '#ff00ff' || bg === '#magenta' || bg === '#ea4335') themeClass = 'theme-sheet-pink';
-                    else if (bg === '#ffff00' || bg === '#yellow') themeClass = 'theme-sheet-yellow';
-                    else if (bg === '#ef4444' || bg === 'red') themeClass = 'theme-sheet-red';
-
-                    let statusIcon = '';
-                    if (item.status === 'available') {
-                        if(themeClass === 'theme-normal') themeClass = 'theme-free'; 
-                        patientName = `<span class="text-emerald-300 drop-shadow-md">ว่าง</span>`;
-                        statusIcon = `<i class="fas fa-check-circle text-emerald-400 text-xl"></i>`;
-                    } else if (item.status === 'cancelled') {
-                        themeClass = 'theme-cancel';
-                        if (bg === '#ef4444') themeClass = 'theme-sheet-red'; 
-                        patientName = `<span class="line-through opacity-60">${item.patient}</span>`;
-                        statusIcon = `<i class="fas fa-ban text-slate-400 text-xl"></i>`;
-                    } else {
-                        statusIcon = isSheetColor ? `<i class="fas fa-user text-black opacity-20 text-xl"></i>` : `<i class="fas fa-user text-cyan-200 opacity-30 text-xl"></i>`;
-                        if (bg === '#ef4444') statusIcon = `<i class="fas fa-user-times text-white opacity-50 text-xl"></i>`;
-                    }
-
-                    // Header & Badge Logic
-                    let headerClass = (item.dept === 'TCM') ? 'header-tcm' : 'header-ttm';
-                    const isTCM = (item.dept === 'TCM');
-                    const deptLabel = isTCM ? 'แผนจีน' : 'แผนไทย';
-                    const deptBadgeClass = isTCM ? 'tag-tcm' : 'tag-ttm';
-                    const nameColorClass = isTCM ? 'text-rose-300' : 'text-teal-300';
-                    const deptBadgeHtml = `<span class="dept-tag ${deptBadgeClass}">${deptLabel}</span>`;
-
-                    let contentHtml = '';
-                    if (item.status !== 'available' && item.status !== 'cancelled') {
-                        let txtTreatment = item.treatment || '';
-                        let txtRemarks = item.remarks || '';
-                        let row1Html = formatBadge(txtTreatment);
-                        let row2Html = '';
-                        if (txtRemarks !== '') {
-                            if (item.isRemarkStrike) row2Html = `<div class="mt-1"><span class="strike-text"><i class="fas fa-user-times mr-1"></i>${txtRemarks}</span></div>`;
-                            else row2Html = `<div class="mt-1 text-base font-medium opacity-90">${formatBadge(txtRemarks)}</div>`;
-                        }
-                        contentHtml = `<div class="mt-1 flex flex-col justify-start"><div>${row1Html}</div>${row2Html}</div>`;
-                    } else if (item.status === 'available') {
-                        contentHtml = `<div class="mt-1 opacity-70 text-base">พร้อมให้บริการ</div>`;
-                    } else if (item.status === 'cancelled') {
-                        contentHtml = `<div class="mt-1 font-bold opacity-70">ยกเลิกนัด</div>`;
-                    }
-
-                    const telBtn = (item.tel && item.status !== 'available' && item.status !== 'cancelled') 
-                        ? `<a href="tel:${item.tel}" class="icon-btn"><i class="fas fa-phone"></i></a>` : '';
-                    
-                    const itemDataStr = encodeURIComponent(JSON.stringify(item));
-                    const settingBtn = `<button id="setting-btn-${item.id}" onclick="openStatusModal('${itemDataStr}')" class="icon-btn ml-1 hover:bg-white/20"><i class="fas fa-cog"></i></button>`;
-                    const editBtn = `<button id="edit-btn-${item.id}" onclick="openEditModal('${itemDataStr}')" class="icon-btn ml-1 hover:bg-white/20"><i class="fas fa-pen text-xs"></i></button>`;
-
-                    const roomBadge = item.room ? `<div class="absolute bottom-2 right-2"><span class="room-tag">${item.room}</span></div>` : '';
-
-                    html += `
-                        <div class="h-full">
-                            <div id="card-${item.id}" class="queue-card ${themeClass}">
-                                <div class="card-header-layer ${headerClass}">
-                                    <div class="flex justify-between items-start mb-1">
-                                        <div class="flex items-center gap-2 overflow-hidden">
-                                            <div class="card-time-badge">${item.time}</div>
-                                            <div class="staff-name flex-1 truncate ${nameColorClass}">
-                                                ${item.staff} ${deptBadgeHtml}
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center shrink-0">
-                                            ${telBtn}
-                                            ${editBtn}
-                                            ${settingBtn}
-                                        </div>
-                                    </div>
-                                    <div class="patient-name-container justify-between border-t border-white/10 pt-1">
-                                        <div class="patient-text w-full">${patientName}</div>
-                                        <div class="pl-2">${statusIcon}</div>
-                                    </div>
-                                </div>
-                                <div class="px-2 pb-6">${contentHtml}${roomBadge}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-                html += `</div></div>`;
-                container.innerHTML += html;
-            });
-        }
     </script>
 </body>
 </html>
