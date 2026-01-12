@@ -1,50 +1,265 @@
-async function fetchData(isBackground) {
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=0.1, user-scalable=yes">
+    <title>Sadao Queue</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0b1021">
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/poppingaeiou/Staff/main/%E0%B9%81%E0%B8%AD%E0%B8%9E%E0%B9%81%E0%B8%9C%E0%B8%99%E0%B8%81.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --cell-min-width: 280px; 
+            --cell-height: 160px;
+            --font-scale: 1;
+            --icon-size: 28px;
+            --card-padding: 6px;
+        }
+
+        body { font-family: 'Sarabun', sans-serif; background-color: #0b1021; color: #e2e8f0; height: 100vh; overflow: hidden; }
+        .bg-stars { position: fixed; inset: 0; z-index: -1; background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px), radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px); background-size: 550px 550px, 350px 350px; animation: starMove 120s linear infinite; pointer-events: none; }
+        @keyframes starMove { from { background-position: 0 0; } to { background-position: 550px 550px; } }
+
+        /* SCHEDULER GRID */
+        .scheduler-wrapper {
+            display: grid; overflow: auto; height: calc(100vh - 140px); position: relative;
+            grid-template-rows: 50px auto; gap: 1px; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: all 0.2s ease;
+            -webkit-overflow-scrolling: touch; 
+        }
+        
+        .sticky-corner { position: sticky; left: 0; top: 0; z-index: 50; background: #0f172a; border-bottom: 1px solid rgba(255,255,255,0.1); border-right: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-family: 'Rajdhani', sans-serif; font-weight: bold; color: #22d3ee; font-size: 1.2rem; }
+        .sticky-top { position: sticky; top: 0; z-index: 40; background: #1e293b; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-weight: bold; white-space: nowrap; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); font-size: calc(1rem * var(--font-scale)); overflow: hidden; }
+        .sticky-left { position: sticky; left: 0; z-index: 30; background: #0f172a; border-right: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; flex-direction: column; font-family: 'Rajdhani', sans-serif; font-weight: 700; color: #e2e8f0; width: calc(50px + (40px * var(--font-scale))); font-size: calc(1.2rem * var(--font-scale)); }
+        
+        .grid-cell { background: rgba(15, 23, 42, 0.6); padding: calc(2px * var(--font-scale)); min-width: var(--cell-min-width); min-height: var(--cell-height); display: flex; flex-direction: column; transition: min-width 0.2s ease, min-height 0.2s ease; }
+        .grid-cell:hover { background: rgba(30, 41, 59, 0.8); }
+
+        .header-ttm { color: #2dd4bf; border-top: 3px solid #2dd4bf; } .header-tcm { color: #f87171; border-top: 3px solid #f87171; }
+        .queue-badge { font-size: calc(0.7rem * var(--font-scale)); background: rgba(255,255,255,0.1); padding: 0 4px; border-radius: 4px; margin-top: 2px; font-weight: normal; opacity: 0.8; }
+
+        /* CARD STYLING */
+        .queue-card { border-radius: calc(6px * var(--font-scale)); padding: var(--card-padding); position: relative; transition: all 0.2s ease; display: flex; flex-direction: column; height: 100%; border: 1px solid rgba(255, 255, 255, 0.08); overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .queue-card:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.3); }
+        
+        .theme-normal { background: rgba(30, 41, 59, 0.95); border-left: calc(3px * var(--font-scale)) solid #94a3b8; }
+        .theme-free { background: rgba(6, 78, 59, 0.7); border: 1px solid #10b981; border-left: calc(3px * var(--font-scale)) solid #10b981; color: #d1fae5; }
+        .theme-cancel { background: #334155; color: #94a3b8; border-left: calc(3px * var(--font-scale)) solid #64748b; opacity: 0.9; }
+        .theme-sheet-green { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); color: #fff; border: 2px solid #86efac; }
+        .theme-sheet-pink { background: linear-gradient(135deg, #e879f9 0%, #a21caf 100%); color: #fff; border: 2px solid #f5d0fe; }
+        .theme-sheet-yellow { background: linear-gradient(135deg, #facc15 0%, #a16207 100%); color: #422006; border: 2px solid #fef08a; }
+        .theme-sheet-red { background: linear-gradient(135deg, #ef4444 0%, #7f1d1d 100%); color: #fff; border: 2px solid #f87171; }
+
+        .patient-text { font-size: calc(1.1rem * var(--font-scale)); font-weight: 700; line-height: 1.15; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 2px; word-break: break-word; }
+        
+        .badge-treatment { display: inline-block; padding: 1px calc(4px * var(--font-scale)); border-radius: 4px; font-weight: 600; font-size: calc(0.85rem * var(--font-scale)); text-shadow: 0 1px 2px rgba(0,0,0,0.2); white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+        .badge-treatment-pink { background: linear-gradient(135deg, #ec4899, #be185d); color: white; border: 1px solid #fbcfe8; }
+        .badge-treatment-darkblue { background: linear-gradient(135deg, #1e3a8a, #172554); color: white; border: 1px solid #60a5fa; }
+        .badge-treatment-lightblue { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; border: 1px solid #bae6fd; }
+        .badge-treatment-default { background: rgba(6, 182, 212, 0.15); border: 1px solid #06b6d4; color: #67e8f9; }
+        .badge-booking { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(145deg, #fb923c, #c2410c); color: white; padding: 1px calc(4px * var(--font-scale)); border-radius: 4px; font-size: calc(0.75rem * var(--font-scale)); font-weight: 800; margin-right: 3px; border: 1px solid rgba(255,255,255,0.2); }
+
+        .icon-btn { width: var(--icon-size); height: var(--icon-size); border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; transition: all 0.2s; cursor: pointer; margin-right: 1px; }
+        .icon-btn i { font-size: calc(0.5 * var(--icon-size)); }
+        .theme-sheet-yellow .icon-btn { color: #422006; border-color: rgba(66, 32, 6, 0.2); background: rgba(255,255,255,0.4); }
+        .status-icon i { font-size: calc(1.2rem * var(--font-scale)); }
+        .room-tag { position: absolute; bottom: 1px; right: 1px; font-family: 'Rajdhani', sans-serif; background: #000; color: #facc15; border: 1px solid #ca8a04; padding: 0 4px; border-radius: 3px; font-size: calc(0.8rem * var(--font-scale)); font-weight: 700; }
+
+        /* MICRO VIEW (Zoom Level 0) */
+        .micro-view .patient-text { -webkit-line-clamp: 1 !important; font-size: 0.9rem !important; }
+        .micro-view .icon-btn { display: none !important; }
+        .micro-view .status-icon { display: block !important; position: absolute; top: 4px; right: 4px; }
+        .micro-view .force-show-btn { display: flex !important; width: 18px !important; height: 18px !important; position: absolute; bottom: 2px; left: 2px; font-size: 10px !important; }
+
+        /* Modals & UI */
+        .modal-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: flex; justify-content: center; items-center; transition: opacity 0.3s; opacity: 0; pointer-events: none; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-box { background: #1e293b; border: 1px solid #475569; border-radius: 16px; padding: 20px; width: 90%; max-width: 380px; transform: scale(0.9); transition: transform 0.3s; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+        .modal-overlay.active .modal-box { transform: scale(1); }
+        .status-btn { width: 100%; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 10px; transition: transform 0.1s; border: 2px solid transparent; margin-bottom: 8px; }
+        .btn-green { background: #22c55e; color: #022c22; border-color: #86efac; }
+        .btn-pink { background: #e879f9; color: #4a044e; border-color: #fbcfe8; }
+        .btn-yellow { background: #facc15; color: #422006; border-color: #fde047; }
+        .btn-red { background: #ef4444; color: white; border-color: #f87171; }
+        .btn-white { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
+        .input-group label { display: block; color: #94a3b8; font-size: 0.85rem; margin-bottom: 4px; }
+        .input-group input { width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 10px; border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+        .save-btn { width: 100%; background: linear-gradient(90deg, #06b6d4, #3b82f6); color: white; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 1.1rem; margin-top: 10px; }
+        .spin-slow { animation: spin 2s linear infinite; } @keyframes spin { 100% { transform: rotate(360deg); } }
+        .zoom-controls { display: flex; gap: 4px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.1); }
+        .zoom-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #22d3ee; background: rgba(255,255,255,0.05); transition: all 0.2s; }
+        .zoom-btn:hover { background: rgba(34, 211, 238, 0.2); color: white; }
+    </style>
+</head>
+<body class="pb-2">
+    <div class="bg-stars"></div>
+
+    <header class="bg-slate-900/95 backdrop-blur-md border-b border-cyan-500/30 sticky top-0 z-[60]">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center max-w-full">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-600 to-blue-900 flex items-center justify-center text-white border border-cyan-400 shadow-lg">
+                    <i class="fas fa-table text-xl"></i>
+                </div>
+                <div>
+                    <h1 id="pageTitle" class="text-xl font-extrabold text-white tracking-wide">ตารางคิว (Loading...)</h1>
+                    <div class="flex items-center gap-2 text-cyan-400 text-[10px] font-mono mt-0.5">
+                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                        <span id="lastUpdate">INITIALIZING...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="zoom-controls">
+                    <button onclick="adjustZoom(-1)" class="zoom-btn" title="Zoom Out"><i class="fas fa-search-minus"></i></button>
+                    <button onclick="adjustZoom(1)" class="zoom-btn" title="Zoom In"><i class="fas fa-search-plus"></i></button>
+                </div>
+                <button id="installBtn" onclick="installApp()" class="hidden bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg border border-emerald-400 hover:scale-105 transition transform flex items-center gap-2">
+                    <i class="fas fa-download"></i> <span class="hidden sm:inline">ติดตั้ง</span>
+                </button>
+                <button onclick="fetchData(false)" class="w-10 h-10 rounded-full bg-slate-800 text-cyan-400 border border-slate-600 hover:bg-cyan-900 hover:text-white flex items-center justify-center transition shadow-lg">
+                    <i class="fas fa-sync-alt text-lg" id="refreshIcon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="px-4 mt-2 mb-2 max-w-full">
+        <select id="staffFilter" onchange="filterData()" class="w-full p-2 bg-slate-800 text-white border border-slate-600 rounded-lg font-bold focus:outline-none focus:border-cyan-500 cursor-pointer shadow-md appearance-none text-sm">
+            <option value="all">⚡ แสดงคิวของทุกคน (Show All)</option>
+        </select>
+    </div>
+
+    <div class="p-2 h-full">
+        <div id="schedulerContainer" class="scheduler-wrapper">
+            <div class="p-10 text-center text-slate-400 col-span-full">Loading data...</div>
+        </div>
+    </div>
+
+    <div id="statusModal" class="modal-overlay"><div class="modal-box"><div class="flex justify-between items-center mb-4"><h2 class="text-lg font-bold text-white">อัปเดตสถานะ</h2><button onclick="closeModal('statusModal')" class="text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button></div><div class="space-y-3"><button onclick="changeStatus('#00ff00')" class="status-btn btn-green"><i class="fas fa-user-check"></i> คนไข้มาแล้ว</button><button onclick="changeStatus('#ff00ff')" class="status-btn btn-pink"><i class="fas fa-phone-volume"></i> โทรแจ้งแล้ว</button><button onclick="changeStatus('#ffff00')" class="status-btn btn-yellow"><i class="fas fa-exclamation-triangle"></i> ติดต่อไม่ได้</button><button onclick="changeStatus('cancel')" class="status-btn btn-red"><i class="fas fa-ban"></i> ยกเลิก / ขีดฆ่า</button><button onclick="changeStatus('clear')" class="status-btn btn-white"><i class="fas fa-eraser"></i> ล้างสถานะ</button></div></div></div>
+    <div id="editModal" class="modal-overlay"><div class="modal-box"><div class="flex justify-between items-center mb-4"><h2 class="text-lg font-bold text-white"><i class="fas fa-edit text-cyan-400 mr-2"></i>แก้ไขข้อมูล</h2><button onclick="closeModal('editModal')" class="text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button></div><div class="space-y-3"><div class="input-group"><label>ชื่อ</label><input type="text" id="edit-val1"></div><div class="input-group"><label>เบอร์โทร</label><input type="text" id="edit-val2"></div><div class="input-group"><label>รายการ</label><input type="text" id="edit-val3" list="treatment-options"><datalist id="treatment-options"></datalist></div><div class="input-group"><label>หมายเหตุ</label><input type="text" id="edit-val4"></div><button onclick="saveEditData()" class="save-btn">บันทึกข้อมูล</button></div></div></div>
+
+    <script>
+        // ⚠️ BACKEND V.52 URL
+        const API_URL = "https://script.google.com/macros/s/AKfycbx7biDk5VGc0xkjAxLiN3OQXKoRU5kok144Z9TTQeSw4EVUD5XWeFEuPOCK04mR5mXj5A/exec";
+        
+        let allData = [];
+        let selectedCard = null;
+        let currentZoomLevel = 2; 
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+
+        // PWA Install
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.classList.remove('hidden'); installBtn.classList.add('flex'); });
+        async function installApp() { if (!deferredPrompt) return; deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; deferredPrompt = null; installBtn.classList.add('hidden'); installBtn.classList.remove('flex'); }
+        window.addEventListener('appinstalled', () => { installBtn.classList.add('hidden'); installBtn.classList.remove('flex'); });
+
+        // Zoom Levels (V.50 Galaxy Zoom)
+        const zoomLevels = [
+            { width: '55px', height: '100px', font: 0.5, icon: '16px', padding: '2px', micro: true }, 
+            { width: '100px', height: '110px', font: 0.7, icon: '20px', padding: '4px', micro: false },
+            { width: '200px', height: '140px', font: 0.85, icon: '26px', padding: '6px', micro: false },
+            { width: '280px', height: '160px', font: 1.0, icon: '30px', padding: '10px', micro: false },
+            { width: '350px', height: '180px', font: 1.2, icon: '34px', padding: '10px', micro: false }
+        ];
+
+        function adjustZoom(direction) {
+            currentZoomLevel += direction;
+            if(currentZoomLevel < 0) currentZoomLevel = 0;
+            if(currentZoomLevel > 4) currentZoomLevel = 4;
+            applyZoom();
+        }
+
+        function applyZoom() {
+            const level = zoomLevels[currentZoomLevel];
+            const root = document.documentElement;
+            root.style.setProperty('--cell-min-width', level.width);
+            root.style.setProperty('--cell-height', level.height);
+            root.style.setProperty('--font-scale', level.font);
+            root.style.setProperty('--icon-size', level.icon);
+            root.style.setProperty('--card-padding', level.padding);
+            const container = document.getElementById('schedulerContainer');
+            if(level.micro) container.classList.add('micro-view'); else container.classList.remove('micro-view');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.innerWidth < 768) currentZoomLevel = 1; else currentZoomLevel = 3;
+            applyZoom();
+            fetchData(false);
+            setInterval(() => fetchData(true), 30000); 
+        });
+
+        // Fetch & Cache (V.52 Logic)
+        async function fetchData(isBackground) {
             const refreshIcon = document.getElementById('refreshIcon');
-            
-            // 1. ★★★ INSTANT LOAD (แสดงของเก่าก่อนเลย) ★★★
-            // ถ้าเป็นการโหลดครั้งแรก (ไม่ใช่กด Refresh เอง) ให้เอาของเก่ามาโชว์ก่อน
+            // Instant Load from Local Storage
             if (!isBackground) {
-                const cachedData = localStorage.getItem('sadao_queue_cache');
-                if (cachedData) {
-                    try {
-                        const parsed = JSON.parse(cachedData);
-                        console.log("Loading from Local Cache...");
-                        // แสดงข้อมูลเก่าไปพลางๆ
-                        if(parsed.data) {
-                            allData = parsed.data;
-                            setupFilter(allData); 
-                            filterData();
-                            document.getElementById('lastUpdate').innerText = `CACHED DATA`;
-                        }
-                    } catch (e) {}
-                }
+                const cached = localStorage.getItem('sadao_queue_cache');
+                if (cached) { try { const p = JSON.parse(cached); if(p.data) { allData = p.data; setupFilter(allData); filterData(); document.getElementById('lastUpdate').innerText = `CACHED DATA`; } } catch(e){} }
                 if(refreshIcon) refreshIcon.classList.add('spin-slow');
             }
-
             try {
-                // 2. โหลดของจริงจาก Server
                 const res = await fetch(API_URL + "?date=today&t=" + new Date().getTime());
                 const json = await res.json();
-                
                 if(json.status === 'success') {
                     allData = json.data;
                     const now = new Date();
                     document.getElementById('lastUpdate').innerText = `UPDATED: ${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}`;
                     if(json.date) document.getElementById('pageTitle').innerText = `ตารางคิววันที่ ${json.date}`;
-                    
-                    setupFilter(allData); 
-                    filterData(); 
-
-                    // 3. ★★★ บันทึกลง Local Cache สำหรับครั้งหน้า ★★★
+                    setupFilter(allData); filterData(); 
                     localStorage.setItem('sadao_queue_cache', JSON.stringify(json));
-                } else {
-                    // ถ้า Server Error ก็ยังดีที่มีข้อมูลเก่าค้างหน้าจอ
-                    console.error("Server Error:", json.message);
-                }
-            } catch(e) { 
-                console.error("Network Error:", e);
-            } 
-            finally { 
-                if(refreshIcon) refreshIcon.classList.remove('spin-slow'); 
-            }
+                } else { document.getElementById('schedulerContainer').innerHTML = `<div class="p-10 text-white text-center">${json.message}</div>`; }
+            } catch(e) { console.error(e); } finally { if(refreshIcon) refreshIcon.classList.remove('spin-slow'); }
         }
+
+        function setupFilter(data) { const select = document.getElementById('staffFilter'); const current = select.value; const staffSet = new Set(data.map(d => d.staff)); while (select.options.length > 1) select.remove(1); Array.from(staffSet).sort().forEach(s => { const opt = document.createElement('option'); opt.value = s; opt.text = `📡 คิวของ: ${s}`; select.add(opt); }); select.value = current; }
+        function filterData() { const who = document.getElementById('staffFilter').value; if(who === 'all') renderScheduler(allData); else { const filtered = allData.filter(d => d.staff === who); renderScheduler(filtered); } }
+
+        function renderScheduler(data) {
+            const container = document.getElementById('schedulerContainer');
+            if(data.length === 0) { container.innerHTML = `<div class="p-10 text-white text-center">ว่าง (ไม่มีคิวในช่วงนี้)</div>`; return; }
+            const columnMap = new Map(); const timeSet = new Set();  
+            data.forEach(item => { if(!columnMap.has(item.realColIndex)) { columnMap.set(item.realColIndex, { name: item.staff, dept: item.dept, id: item.realColIndex }); } timeSet.add(item.time); });
+            let sortedCols = Array.from(columnMap.values()).sort((a,b) => { if(a.dept === 'TTM' && b.dept === 'TCM') return -1; if(a.dept === 'TCM' && b.dept === 'TTM') return 1; return a.id - b.id; });
+            const nameCounts = {}; sortedCols.forEach(col => { if (!nameCounts[col.name]) nameCounts[col.name] = 0; nameCounts[col.name]++; col.displayName = col.name; });
+            const currentCount = {}; sortedCols.forEach(col => { if(nameCounts[col.name] > 1) { if(!currentCount[col.name]) currentCount[col.name] = 0; currentCount[col.name]++; col.queueLabel = `<span class="queue-badge">คิว ${currentCount[col.name]}</span>`; } else { col.queueLabel = ''; } });
+            const timeList = Array.from(timeSet).sort();
+            container.style.gridTemplateColumns = `calc(50px + (40px * var(--font-scale))) repeat(${sortedCols.length}, minmax(var(--cell-min-width), 1fr))`;
+            let html = `<div class="sticky-corner"><i class="far fa-clock"></i></div>`;
+            sortedCols.forEach(col => { const headerClass = (col.dept === 'TCM') ? 'header-tcm' : 'header-ttm'; const icon = (col.dept === 'TCM') ? '<i class="fas fa-yin-yang ml-1 opacity-70"></i>' : '<i class="fas fa-spa ml-1 opacity-70"></i>'; html += `<div class="sticky-top ${headerClass}"><div class="truncate w-full">${col.displayName} ${icon}</div>${col.queueLabel}</div>`; });
+            timeList.forEach(time => { html += `<div class="sticky-left">${time}<span class="time-sub">น.</span></div>`; sortedCols.forEach(col => { const item = data.find(d => d.time === time && d.realColIndex === col.id); html += `<div class="grid-cell">`; if (item && item.staff) { html += createCardHtml(item); } html += `</div>`; }); });
+            container.innerHTML = html;
+        }
+
+        function createCardHtml(item) {
+            let themeClass = 'theme-normal'; let patientName = item.patient; const bg = (item.bgColor || "").toLowerCase(); const isSheetColor = (bg === '#00ff00' || bg === '#lime' || bg === '#ff00ff' || bg === '#magenta' || bg === '#ffff00' || bg === '#yellow' || bg === '#ef4444' || bg === 'red');
+            if (bg === '#00ff00' || bg === '#lime') themeClass = 'theme-sheet-green'; else if (bg === '#ff00ff' || bg === '#magenta' || bg === '#ea4335') themeClass = 'theme-sheet-pink'; else if (bg === '#ffff00' || bg === '#yellow') themeClass = 'theme-sheet-yellow'; else if (bg === '#ef4444' || bg === 'red') themeClass = 'theme-sheet-red';
+            let statusIcon = '';
+            if (item.status === 'available') { if(themeClass === 'theme-normal') themeClass = 'theme-free'; patientName = `<span class="text-emerald-300 drop-shadow-md">ว่าง</span>`; statusIcon = `<i class="fas fa-check-circle text-emerald-400"></i>`; } else if (item.status === 'cancelled') { themeClass = 'theme-cancel'; if (bg === '#ef4444') themeClass = 'theme-sheet-red'; patientName = `<span class="line-through opacity-60">${item.patient}</span>`; statusIcon = `<i class="fas fa-ban text-slate-400"></i>`; } else { statusIcon = isSheetColor ? `<i class="fas fa-user text-black opacity-20"></i>` : `<i class="fas fa-user text-cyan-200 opacity-30"></i>`; if (bg === '#ef4444') statusIcon = `<i class="fas fa-user-times text-white opacity-50"></i>`; }
+            const itemDataStr = encodeURIComponent(JSON.stringify(item));
+            const settingBtn = `<button id="setting-btn-${item.id}" onclick="openStatusModal('${itemDataStr}')" class="icon-btn ml-1 hover:bg-white/20 force-show-btn"><i class="fas fa-cog"></i></button>`;
+            const editBtn = `<button id="edit-btn-${item.id}" onclick="openEditModal('${itemDataStr}')" class="icon-btn ml-1 hover:bg-white/20"><i class="fas fa-pen"></i></button>`;
+            const telBtn = (item.tel && item.status !== 'available' && item.status !== 'cancelled') ? `<a href="tel:${item.tel}" class="icon-btn"><i class="fas fa-phone"></i></a>` : '';
+            let contentHtml = '';
+            if (item.status !== 'available' && item.status !== 'cancelled') { let txtTreatment = item.treatment || ''; let txtRemarks = item.remarks || ''; let row1Html = formatBadge(txtTreatment); let row2Html = ''; if (txtRemarks !== '') { if (item.isRemarkStrike) row2Html = `<div class="mt-auto"><span class="strike-text"><i class="fas fa-user-times mr-1"></i>${txtRemarks}</span></div>`; else row2Html = `<div class="mt-auto text-sm font-medium opacity-90" style="font-size:90%">${formatBadge(txtRemarks)}</div>`; } contentHtml = `<div class="mt-auto flex flex-col justify-start"><div>${row1Html}</div>${row2Html}</div>`; } else if (item.status === 'available') { contentHtml = `<div class="mt-auto opacity-70" style="font-size:90%">พร้อมให้บริการ</div>`; } else if (item.status === 'cancelled') { contentHtml = `<div class="mt-auto font-bold opacity-70" style="font-size:90%">ยกเลิกนัด</div>`; }
+            const roomBadge = item.room ? `<div class="room-tag">${item.room}</div>` : '';
+            return `<div id="card-${item.id}" class="queue-card ${themeClass}"><div class="flex justify-between items-start mb-1"><div class="patient-text w-full">${patientName}</div></div><div class="flex justify-between items-center mb-1"><div class="flex gap-1">${telBtn}${editBtn}${settingBtn}</div><div class="status-icon">${statusIcon}</div></div>${contentHtml}${roomBadge}</div>`;
+        }
+
+        function formatBadge(text) { if (!text) return ''; let html = ''; if (text.includes('จอง')) { html += `<span class="badge-booking">จอง</span>`; text = text.replace('จอง', '').trim(); } if (text) { let badgeClass = 'badge-treatment-default'; if (text.includes('ทับหม้อเกลือ')) badgeClass = 'badge-treatment-pink'; else if (text.includes('นวดตัวส่งเสริม')) badgeClass = 'badge-treatment-darkblue'; else if (text.includes('นวดรักษา')) badgeClass = 'badge-treatment-lightblue'; html += `<span class="badge-treatment ${badgeClass}">${text}</span>`; } return html; }
+        function openEditModal(cardDataJson) { selectedCard = JSON.parse(decodeURIComponent(cardDataJson)); document.getElementById('edit-val1').value = selectedCard.rawVal1 || ""; document.getElementById('edit-val2').value = selectedCard.rawVal2 || ""; document.getElementById('edit-val3').value = selectedCard.rawVal3 || ""; document.getElementById('edit-val4').value = selectedCard.rawVal4 || ""; const datalist = document.getElementById('treatment-options'); if (selectedCard.dept === 'TCM') datalist.innerHTML = `<option value="ฝังเข็มรักษา"><option value="ครอบแก้ว"><option value="จอง">`; else datalist.innerHTML = `<option value="นวดตัวส่งเสริม"><option value="นวดรักษา"><option value="จอง"><option value="ทับหม้อเกลือ">`; document.getElementById('editModal').classList.add('active'); }
+        function openStatusModal(cardDataJson) { selectedCard = JSON.parse(decodeURIComponent(cardDataJson)); document.getElementById('statusModal').classList.add('active'); }
+        function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); selectedCard = null; }
+        async function changeStatus(colorCode) { saveAction(colorCode, 'status'); }
+        async function saveEditData() { const v1=document.getElementById('edit-val1').value, v2=document.getElementById('edit-val2').value, v3=document.getElementById('edit-val3').value, v4=document.getElementById('edit-val4').value; saveAction({val1:v1, val2:v2, val3:v3, val4:v4}, 'edit_data'); }
+        async function saveAction(data, mode) { if (!selectedCard) return; const targetId = selectedCard.id; const cardEl = document.getElementById(`card-${targetId}`); let payload = { date: selectedCard.sheetDate, row: selectedCard.sheetRow, col: selectedCard.sheetCol, mode: mode }; if(mode === 'status') { payload.color = data; closeModal('statusModal'); } else { payload.val1=data.val1; payload.val2=data.val2; payload.val3=data.val3; payload.val4=data.val4; closeModal('editModal'); } if(cardEl) cardEl.classList.add('card-loading'); try { await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); setTimeout(() => fetchData(false), 1500); } catch (e) { alert('Connection Error'); if(cardEl) cardEl.classList.remove('card-loading'); } }
+    </script>
+</body>
+</html>
