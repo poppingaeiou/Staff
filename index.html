@@ -178,7 +178,7 @@
             }
             try {
                 // ★ Call API (Today)
-                const res = await fetch(API_URL + "?date=today&t=" + new Date().getTime());
+                const res = await fetch(API_URL + "?date=14/1&t=" + new Date().getTime());
                 const json = await res.json();
                 if(json.status === 'success') {
                     allData = json.data;
